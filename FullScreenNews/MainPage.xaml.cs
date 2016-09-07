@@ -180,11 +180,11 @@ namespace FullScreenNews
             block.Text = string.Format("{0} {1} {2}%", tick.Symbol, price.ToString("N02", CultureInfo.InvariantCulture), change.ToString("N02", CultureInfo.InvariantCulture));
             if (tick.IsUp)
             {
-                block.Foreground = new SolidColorBrush(Colors.White); 
+                block.Foreground = new SolidColorBrush(Colors.DarkGreen); 
             }
             else
             {
-                block.Foreground = new SolidColorBrush(Colors.AntiqueWhite);
+                block.Foreground = new SolidColorBrush(Colors.DarkRed);
             }
         }
 

@@ -11,33 +11,89 @@
         <Grid.Background>
             <ImageBrush x:Name="imgBackground"/>
         </Grid.Background>
-        <Grid HorizontalAlignment="Left" Height="209" Margin="0,871,0,0" VerticalAlignment="Top" Width="1570" Background="#FF293133" Opacity="0.9">
-            <TextBlock x:Name="textTime" HorizontalAlignment="Right" Margin="0,4,1367,0" TextWrapping="Wrap" Text="0:00" FontSize="72" Width="174" Foreground="#FFF7F6F6" Height="89" VerticalAlignment="Top"/>
-            <TextBlock x:Name="textTimer" HorizontalAlignment="Right" Margin="0,96,1290,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" FontSize="24" Width="251" Foreground="#FFF7F6F6"/>
-            <TextBlock x:Name="textWeather" HorizontalAlignment="Right" Margin="0,156,1278,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" FontSize="20" Width="190" Foreground="#FFF7F6F6" Height="32"/>
-            <Grid Margin="285,10,259,7">
-                <TextBlock x:Name="textTitle" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Loading" VerticalAlignment="Top" Height="47" Width="1003" FontSize="30" FontWeight="Bold" Foreground="#FFFBF8F8"/>
-                <Image x:Name="imgThumbnail" HorizontalAlignment="Left" Height="100" Margin="78,59,0,0" VerticalAlignment="Top" Width="100"/>
-                <TextBlock x:Name="textDesc" HorizontalAlignment="Right" Margin="0,58,97,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="122" Width="725" FontSize="18" Foreground="#FFF9F8F8"/>
-                <TextBlock x:Name="textInfo" HorizontalAlignment="Left" Margin="83,167,0,-5" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="846" Height="30" FontSize="14" Foreground="#FFD6CECE"/>
-                <Button x:Name="buttonPrev" Content="&lt;" HorizontalAlignment="Left" Margin="0,58,0,0" VerticalAlignment="Top" Height="129" Width="40" Foreground="#FFF7F0F0" FontWeight="Bold" FontSize="24" Click="buttonPrev_Click" />
-                <Button x:Name="buttonNext" Content="&gt;" HorizontalAlignment="Left" Margin="963,58,0,0" VerticalAlignment="Top" Height="129" Width="40" Foreground="#FFF7F0F0" FontWeight="Bold" FontSize="24" Click="buttonNext_Click" />
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="350" />
+        </Grid.ColumnDefinitions>
+        <Grid  Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="210" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0"></Grid>
+
+            <TextBlock x:Name="textImg" Grid.Row="1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Bottom" Height="40" Width="654" FontSize="24" Foreground="#FFFDF8F8" Margin="10,0,0,0"/>
+
+            <Grid Background="#FF293133" Opacity="0.9" Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="320" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="220" />
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0">
+                    <TextBlock x:Name="textTime" HorizontalAlignment="Left" Margin="20,4,0,0" TextWrapping="Wrap" Text="0:00" FontSize="72" Width="174" Foreground="#FFF7F6F6" Height="89" VerticalAlignment="Top"/>
+                    <TextBlock x:Name="textTimer" HorizontalAlignment="Left" Margin="20,96,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" FontSize="24" Foreground="#FFF7F6F6"/>
+                    <Image x:Name="imageWeather" HorizontalAlignment="Left" Height="50" Margin="29,148,0,0" VerticalAlignment="Top" Width="50"/>
+                    <TextBlock x:Name="textWeather" HorizontalAlignment="Left" Margin="80,156,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" FontSize="20" Width="160" Foreground="#FFF7F6F6" Height="32"/>
+                </Grid>
+
+                <Grid Margin="0,10,0,5" Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock x:Name="textTitle" Grid.Row="0" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Loading" VerticalAlignment="Top" Height="47" FontSize="30" FontWeight="Bold" Foreground="#FFFBF8F8"/>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="40" />
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="buttonPrev" Grid.Column="0" Content="&lt;" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" Height="120" Width="40" Foreground="#FFF7F0F0" FontWeight="Bold" FontSize="24" Click="buttonPrev_Click" />
+
+                        <Grid Grid.Column="1" Margin="20,0,20,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="30" />
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Image x:Name="imgThumbnail" Grid.Column="0" HorizontalAlignment="Left" Height="100" Margin="0,0,0,0" VerticalAlignment="Top" Width="100"/>
+                                <TextBlock x:Name="textDesc" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,0,0" TextWrapping="Wrap" Text="" FontSize="18" Foreground="#FFF9F8F8"/>
+                            </Grid>
+                            <TextBlock x:Name="textInfo" Grid.Row="1" HorizontalAlignment="Left" Margin="0,0,0,0" TextWrapping="Wrap" Text="" FontSize="14" Foreground="#FFD6CECE"/>
+                        </Grid>
+
+                        <Button x:Name="buttonNext" Grid.Column="2" Content="&gt;" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" Height="120" Width="40" Foreground="#FFF7F0F0" FontWeight="Bold" FontSize="24" Click="buttonNext_Click" />
+                    </Grid>
+
+                </Grid>
+                <Grid Grid.Column="2">
+                    <TextBlock x:Name="textTick1" HorizontalAlignment="Left" Height="25" Margin="30,22,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF7F2F2"/>
+                    <TextBlock x:Name="textTick2" HorizontalAlignment="Left" Height="25" Margin="30,97,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
+                    <TextBlock x:Name="textTick3" HorizontalAlignment="Left" Height="25" Margin="30,72,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
+                    <TextBlock x:Name="textTick4" HorizontalAlignment="Left" Height="25" Margin="30,47,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
+                    <TextBlock x:Name="textTick5" HorizontalAlignment="Left" Height="25" Margin="30,122,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
+                    <TextBlock x:Name="textTick6" HorizontalAlignment="Left" Height="25" Margin="30,147,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
+                    <TextBlock x:Name="textTick7" HorizontalAlignment="Left" Height="25" Margin="30,172,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
+                </Grid>
             </Grid>
-            <TextBlock x:Name="textTick1" HorizontalAlignment="Left" Height="25" Margin="1372,22,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="144" FontWeight="Bold" Foreground="#FFF7F2F2"/>
-            <TextBlock x:Name="textTick2" HorizontalAlignment="Left" Height="25" Margin="1372,97,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
-            <TextBlock x:Name="textTick3" HorizontalAlignment="Left" Height="25" Margin="1372,72,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="148" FontWeight="Bold" Foreground="#FFF9F6F6"/>
-            <TextBlock x:Name="textTick4" HorizontalAlignment="Left" Height="25" Margin="1372,47,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="155" FontWeight="Bold" Foreground="#FFF9F6F6"/>
-            <Image x:Name="imageWeather" HorizontalAlignment="Left" Height="50" Margin="29,149,0,0" VerticalAlignment="Top" Width="50"/>
-            <TextBlock x:Name="textTick5" HorizontalAlignment="Left" Height="25" Margin="1372,122,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
-            <TextBlock x:Name="textTick6" HorizontalAlignment="Left" Height="25" Margin="1372,147,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
-            <TextBlock x:Name="textTick7" HorizontalAlignment="Left" Height="27" Margin="1372,172,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
+        </Grid>
+        
 
+        <Grid Opacity="0.9" Margin="0,0,0,0" VerticalAlignment="Top" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <WebView HorizontalAlignment="Left" Grid.Row="1" Margin="0,-5,0,0" VerticalAlignment="Top" Width="350" Height="2000" Source="http://aseafamily.azurewebsites.net/ticker.html"/>
         </Grid>
 
-        <Grid Opacity="0.9" Height="1080" Margin="1570,0,0,0" VerticalAlignment="Top" Width="350">
-            <WebView HorizontalAlignment="Left" Height="1085" Margin="0,-5,0,0" VerticalAlignment="Top" Width="350" Source="http://aseafamily.azurewebsites.net/ticker.html"/>
-        </Grid>
-
-        <TextBlock x:Name="textImg" HorizontalAlignment="Left" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="39" Width="654" FontSize="24" Foreground="#FFFDF8F8" Margin="10,827,0,0"/>
+        
     </Grid>
 </Page>
