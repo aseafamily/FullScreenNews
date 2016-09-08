@@ -178,13 +178,23 @@ namespace FullScreenNews
             double price = Double.Parse(tick.Price);
             double change = Double.Parse(tick.Change.Replace("%", ""));
             block.Text = string.Format("{0} {1} {2}%", tick.Symbol, price.ToString("N02", CultureInfo.InvariantCulture), change.ToString("N02", CultureInfo.InvariantCulture));
+
+            int i = (int)Math.Abs(change);
+
+            if (i > 5)
+            {
+                i = 5;
+            }
+
+            i = 255 - i * 41;
+
             if (tick.IsUp)
             {
-                block.Foreground = new SolidColorBrush(Colors.DarkGreen); 
+                block.Foreground = new SolidColorBrush(Color.FromArgb(255, (byte)i, 255, (byte)i));
             }
             else
             {
-                block.Foreground = new SolidColorBrush(Colors.DarkRed);
+                block.Foreground = new SolidColorBrush(Color.FromArgb(255, 255, (byte)i, (byte)i));
             }
         }
 
