@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -30,6 +31,12 @@ namespace FullScreenNews
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+            DebugSettings.BindingFailed += DebugSettings_BindingFailed;
+        }
+
+        void DebugSettings_BindingFailed(object sender, BindingFailedEventArgs e)
+        {
+            Debug.WriteLine(e.Message);
         }
 
         /// <summary>

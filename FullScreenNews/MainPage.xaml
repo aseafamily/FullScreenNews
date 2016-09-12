@@ -5,6 +5,7 @@
     xmlns:local="using:FullScreenNews"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:data="using:FullScreenNews"
     mc:Ignorable="d">
 
     <Grid BorderBrush="#FF444242">
@@ -24,7 +25,7 @@
 
             <Grid Grid.Row="0"></Grid>
 
-            <TextBlock x:Name="textImg" Grid.Row="1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Bottom" Height="40" Width="654" FontSize="24" Foreground="#FFFDF8F8" Margin="10,0,0,0"/>
+            <TextBlock x:Name="textImg" Grid.Row="1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Bottom" Height="40" FontSize="24" Foreground="#FFFDF8F8" Margin="10,0,0,0"/>
 
             <Grid Background="#FF293133" Opacity="0.9" Grid.Row="2">
                 <Grid.ColumnDefinitions>
@@ -34,10 +35,15 @@
                 </Grid.ColumnDefinitions>
 
                 <Grid Grid.Column="0">
-                    <TextBlock x:Name="textTime" HorizontalAlignment="Left" Margin="20,4,0,0" TextWrapping="Wrap" Text="0:00" FontSize="72" Width="174" Foreground="#FFF7F6F6" Height="89" VerticalAlignment="Top"/>
-                    <TextBlock x:Name="textTimer" HorizontalAlignment="Left" Margin="20,96,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" FontSize="24" Foreground="#FFF7F6F6"/>
-                    <Image x:Name="imageWeather" HorizontalAlignment="Left" Height="50" Margin="29,148,0,0" VerticalAlignment="Top" Width="50"/>
-                    <TextBlock x:Name="textWeather" HorizontalAlignment="Left" Margin="80,156,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" FontSize="20" Width="160" Foreground="#FFF7F6F6" Height="32"/>
+                    <TextBlock x:Name="textTime" HorizontalAlignment="Left" Margin="20,4,0,0" TextWrapping="Wrap" Text="12:00" FontSize="72" Width="174" Foreground="#FFF7F6F6" Height="89" VerticalAlignment="Top"/>
+                    <TextBlock x:Name="textTimer" HorizontalAlignment="Left" Margin="20,101,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" FontSize="24" Foreground="#FFF7F6F6" />
+                    <Image x:Name="imageWeatherToday" HorizontalAlignment="Left" Height="70" Margin="210,23,0,0" VerticalAlignment="Top" Width="70" Opacity="0.8"/>
+                    <TextBlock x:Name="textWeatherToday" HorizontalAlignment="Left" Margin="270,45,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" FontSize="24" Width="40" Foreground="#FFF7F6F6" Height="32"/>
+                    <Image x:Name="imageWeatherDay1" HorizontalAlignment="Left" Height="50" Margin="20,148,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
+                    <Image x:Name="imageWeatherDay2" HorizontalAlignment="Left" Height="50" Margin="79,148,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
+                    <Image x:Name="imageWeatherDay3" HorizontalAlignment="Left" Height="50" Margin="134,148,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
+                    <Image x:Name="imageWeatherDay4" HorizontalAlignment="Left" Height="50" Margin="189,148,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
+                    <Image x:Name="imageWeatherDay5" HorizontalAlignment="Left" Height="50" Margin="244,148,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
                 </Grid>
 
                 <Grid Margin="0,10,0,5" Grid.Column="1">
@@ -75,6 +81,7 @@
 
                 </Grid>
                 <Grid Grid.Column="2">
+                    <!--
                     <TextBlock x:Name="textTick1" HorizontalAlignment="Left" Height="25" Margin="30,22,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF7F2F2"/>
                     <TextBlock x:Name="textTick2" HorizontalAlignment="Left" Height="25" Margin="30,97,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
                     <TextBlock x:Name="textTick3" HorizontalAlignment="Left" Height="25" Margin="30,72,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
@@ -82,10 +89,27 @@
                     <TextBlock x:Name="textTick5" HorizontalAlignment="Left" Height="25" Margin="30,122,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
                     <TextBlock x:Name="textTick6" HorizontalAlignment="Left" Height="25" Margin="30,147,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
                     <TextBlock x:Name="textTick7" HorizontalAlignment="Left" Height="25" Margin="30,172,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
+                    -->
+                    <GridView ItemsSource="{x:Bind tickers}" Margin="20,10">
+                        <GridView.ItemTemplate>
+                            <DataTemplate x:DataType="local:Ticker">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                    <TextBlock Text="{x:Bind Symbol}" Foreground="#FFF9F6F6" FontWeight="Bold" Width="60"></TextBlock>
+                                    <TextBlock Text="{x:Bind Price}" Foreground="#FFF9F6F6" FontWeight="Bold" Width="60"></TextBlock>
+                                    <TextBlock Text="{x:Bind Up}" Foreground="{x:Bind Color}" FontWeight="Bold" Width="60"></TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridView.ItemTemplate>
+                        <GridView.ItemContainerStyle>
+                            <Style TargetType="GridViewItem">
+                                <Setter Property="Margin" Value="0,-10" />
+                            </Style>
+                        </GridView.ItemContainerStyle>
+                    </GridView>
                 </Grid>
             </Grid>
         </Grid>
-        
+
 
         <Grid Opacity="0.9" Margin="0,0,0,0" VerticalAlignment="Top" Grid.Column="1">
             <Grid.RowDefinitions>
@@ -94,6 +118,6 @@
             <WebView HorizontalAlignment="Left" Grid.Row="1" Margin="0,-5,0,0" VerticalAlignment="Top" Width="350" Height="2000" Source="http://aseafamily.azurewebsites.net/ticker.html"/>
         </Grid>
 
-        
+
     </Grid>
 </Page>

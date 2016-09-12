@@ -1,6 +1,7 @@
 ﻿using ServiceHelpers;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -27,6 +28,17 @@ using Windows.UI.Xaml.Navigation;
 
 namespace FullScreenNews
 {
+    public class Ticker
+    {
+        public string Symbol { get; set; }
+
+        public string Price { get; set; }
+
+        public string Up { get; set; }
+
+        public SolidColorBrush Color { get; set; }
+    }
+
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
@@ -43,6 +55,8 @@ namespace FullScreenNews
 
         int backgroundIndex = 0;
 
+        public ObservableCollection<Ticker> tickers;
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -54,6 +68,14 @@ namespace FullScreenNews
             {
                 view.TryEnterFullScreenMode();
             }
+
+            tickers = new ObservableCollection<FullScreenNews.Ticker>();
+            /*
+            tickers.Add(new Ticker
+            {
+                Symbol = "aaa"
+            });
+            */
 
             // swipe
             this.NavigationCacheMode = NavigationCacheMode.Required;
@@ -161,6 +183,7 @@ namespace FullScreenNews
         {
             List<FullScreenNews.Yahoo.Tick> ticks = await FullScreenNews.Yahoo.StockQuote.GetQuotes();
 
+            /*
             if (ticks.Count > 2)
             {
                 FormatTick(textTick1, ticks[0]);
@@ -170,6 +193,42 @@ namespace FullScreenNews
                 FormatTick(textTick5, ticks[4]);
                 FormatTick(textTick6, ticks[5]);
                 FormatTick(textTick7, ticks[6]);
+            }
+            */
+
+            this.tickers.Clear();
+            foreach (var t in ticks)
+            {
+                double price = Double.Parse(t.Price);
+                double change = Double.Parse(t.Change.Replace("%", ""));
+
+                int i = (int)Math.Abs(change);
+
+                if (i > 5)
+                {
+                    i = 5;
+                }
+
+                i = 255 - i * 41;
+
+                Color c;
+
+                if (t.IsUp)
+                {
+                    c = Color.FromArgb(255, (byte)i, 255, (byte)i);
+                }
+                else
+                {
+                    c = Color.FromArgb(255, 255, (byte)i, (byte)i);
+                }
+
+                this.tickers.Add(new Ticker
+                {
+                    Symbol = t.Symbol,
+                    Price = price.ToString("N02", CultureInfo.InvariantCulture),
+                    Up = string.Format("{0}%", change.ToString("N02", CultureInfo.InvariantCulture)),
+                    Color = new SolidColorBrush(c)
+                });
             }
         }
 
@@ -208,7 +267,7 @@ namespace FullScreenNews
             //await SearchAsync("top stories");
 
             //pageTimer.Stop();
-            Debug.WriteLine(span.Seconds);
+            //Debug.WriteLine(span.Seconds);
 
             if (first || (int)span.TotalSeconds % 300 == 0)
             {
@@ -222,11 +281,17 @@ namespace FullScreenNews
 
             if (first || span.Seconds % 30 == 0)
             {
-                WeatherResult wr = await OpenWeather.GetWeather();
-                if (wr != null)
+                List<WeatherResult> wr = await OpenWeather.GetWeather();
+                if (wr != null && wr.Count == 6)
                 {
-                    textWeather.Text = wr.Temp;
-                    imageWeather.Source = new BitmapImage(new Uri(wr.IconUrl));
+                    textWeatherToday.Text = string.Format("{0}°", wr[0].Temp);
+                    imageWeatherToday.Source = new BitmapImage(new Uri(wr[0].IconUrl));
+
+                    imageWeatherDay1.Source = new BitmapImage(new Uri(wr[1].IconUrl));
+                    imageWeatherDay2.Source = new BitmapImage(new Uri(wr[2].IconUrl));
+                    imageWeatherDay3.Source = new BitmapImage(new Uri(wr[3].IconUrl));
+                    imageWeatherDay4.Source = new BitmapImage(new Uri(wr[4].IconUrl));
+                    imageWeatherDay5.Source = new BitmapImage(new Uri(wr[5].IconUrl));
                 }
 
                 if (!first)
