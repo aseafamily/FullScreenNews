@@ -343,6 +343,10 @@ namespace FullScreenNews
                 //imgThumbnail.Height = article.Height;
                 imgThumbnail.Source = imgSource;
             }
+            else
+            {
+                imgThumbnail.Source = null;
+            }
 
             textTitle.Text = article.Title;
             textDesc.Text = article.Description;

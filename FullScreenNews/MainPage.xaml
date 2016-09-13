@@ -58,7 +58,7 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="40" />
                         </Grid.ColumnDefinitions>
-                        <Button x:Name="buttonPrev" Opacity="0.5" Grid.Column="0" Content="&lt;" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" Height="120" Width="30" Foreground="#FFF7F0F0" FontWeight="Bold" FontSize="24" Click="buttonPrev_Click" />
+                        <Button x:Name="buttonPrev" Opacity="0.5" Grid.Column="0" Content="&lt;" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" Height="120" Width="30" Foreground="#FFF7F0F0" FontWeight="Bold" FontSize="18" Click="buttonPrev_Click" />
 
                         <Grid Grid.Column="1" Margin="20,0,20,0">
                             <Grid.RowDefinitions>
@@ -76,7 +76,7 @@
                             <TextBlock x:Name="textInfo" Grid.Row="1" HorizontalAlignment="Right" Margin="0,11,0,0" TextWrapping="Wrap" Text="" FontSize="12" Foreground="#FFD6CECE"/>
                         </Grid>
 
-                        <Button x:Name="buttonNext" Grid.Column="2" Opacity="0.5" Content="&gt;" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" Height="120" Width="30" Foreground="#FFF7F0F0" FontWeight="Bold" FontSize="24" Click="buttonNext_Click" />
+                        <Button x:Name="buttonNext" Grid.Column="2" Opacity="0.5" Content="&gt;" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" Height="120" Width="30" Foreground="#FFF7F0F0" FontWeight="Bold" FontSize="18" Click="buttonNext_Click" />
                     </Grid>
 
                 </Grid>
@@ -93,7 +93,7 @@
                     <GridView ItemsSource="{x:Bind tickers}" Margin="20,10,20,20">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="local:Ticker">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                     <TextBlock Text="{x:Bind Symbol}" Foreground="#FFF9F6F6" FontWeight="Bold" Width="60"></TextBlock>
                                     <TextBlock Text="{x:Bind Price}" Foreground="#FFF9F6F6" FontWeight="Bold" Width="60" HorizontalAlignment="Right"></TextBlock>
                                     <TextBlock Text="{x:Bind Up}" Foreground="{x:Bind Color}" FontWeight="Bold" Width="60" HorizontalAlignment="Right"></TextBlock>

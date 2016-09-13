@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace FullScreenNews
@@ -67,6 +68,18 @@ namespace FullScreenNews
                     }
 
                     description = doc.DocumentNode.InnerText;
+
+                    // Remove HTML characters
+                    description = Regex.Replace(description, "&nbsp;", " ").Trim();
+                    description = Regex.Replace(description, @"\s{2,}", " ");
+
+                    if (img == null)
+                    {
+                        if (items.Image != null && !string.IsNullOrWhiteSpace(items.Image.Url))
+                        {
+                            img = items.Image.Url;
+                        }
+                    }
 
                     localArticles.Add(new NewsArticle()
                     {
