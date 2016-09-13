@@ -181,7 +181,22 @@ namespace FullScreenNews
 
         private async void GetQotes()
         {
+            if (this.tickers.Count > 0)
+            {
+                // Not first time, let's see if market is closed
+                int hour = DateTime.Now.Hour;
+                bool isWeekend = DateTime.Now.DayOfWeek == DayOfWeek.Saturday || DateTime.Now.DayOfWeek == DayOfWeek.Sunday;
+
+                // market open from 6-1
+                if (hour < 6 || hour >= 14 || isWeekend)
+                {
+                    return;
+                }
+            }
+
             List<FullScreenNews.Yahoo.Tick> ticks = await FullScreenNews.Yahoo.StockQuote.GetQuotes();
+
+            textTickRefresh.Text = DateTime.Now.ToString("h:mm M/d");
 
             /*
             if (ticks.Count > 2)
@@ -299,7 +314,7 @@ namespace FullScreenNews
                     articles.MoveNext();
                 }
 
-                if (!articles.HasArticle || span.Minutes % 30 == 0)
+                if ((!articles.HasArticle || span.Minutes % 30 == 0) && !articles.IsLoading)
                 {
                     await articles.SearchAsync();
                 }
@@ -333,7 +348,7 @@ namespace FullScreenNews
             textDesc.Text = article.Description;
 
             string content = string.Format(
-                "Published on {0} by {1}    Refreshed on {2} ({3})",
+                "Published on {0} by {1}, refreshed on {2} ({3})",
                 article.Published,
                 article.Provider,
                 article.Refreshed,

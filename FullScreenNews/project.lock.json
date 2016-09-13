@@ -3,6 +3,38 @@
   "version": 2,
   "targets": {
     "UAP,Version=v10.0": {
+      "HigLabo.Net.Rss.WinRT/1.0.0.4": {
+        "type": "package",
+        "dependencies": {
+          "HigLabo.Net.WinRT": "1.0.0.4"
+        },
+        "compile": {
+          "lib/winrt45/HigLabo.Net.Rss.WinRT.dll": {}
+        },
+        "runtime": {
+          "lib/winrt45/HigLabo.Net.Rss.WinRT.dll": {}
+        }
+      },
+      "HigLabo.Net.WinRT/1.0.0.4": {
+        "type": "package",
+        "compile": {
+          "lib/winrt45/HigLabo.Net.WinRT.dll": {},
+          "lib/winrt45/Newtonsoft.Json.WinRT.dll": {}
+        },
+        "runtime": {
+          "lib/winrt45/HigLabo.Net.WinRT.dll": {},
+          "lib/winrt45/Newtonsoft.Json.WinRT.dll": {}
+        }
+      },
+      "HtmlAgilityPack/1.4.9.5": {
+        "type": "package",
+        "compile": {
+          "lib/NetCore45/HtmlAgilityPack.dll": {}
+        },
+        "runtime": {
+          "lib/NetCore45/HtmlAgilityPack.dll": {}
+        }
+      },
       "Microsoft.CSharp/4.0.1": {
         "type": "package",
         "dependencies": {
@@ -2161,6 +2193,38 @@
       }
     },
     "UAP,Version=v10.0/win10-arm": {
+      "HigLabo.Net.Rss.WinRT/1.0.0.4": {
+        "type": "package",
+        "dependencies": {
+          "HigLabo.Net.WinRT": "1.0.0.4"
+        },
+        "compile": {
+          "lib/winrt45/HigLabo.Net.Rss.WinRT.dll": {}
+        },
+        "runtime": {
+          "lib/winrt45/HigLabo.Net.Rss.WinRT.dll": {}
+        }
+      },
+      "HigLabo.Net.WinRT/1.0.0.4": {
+        "type": "package",
+        "compile": {
+          "lib/winrt45/HigLabo.Net.WinRT.dll": {},
+          "lib/winrt45/Newtonsoft.Json.WinRT.dll": {}
+        },
+        "runtime": {
+          "lib/winrt45/HigLabo.Net.WinRT.dll": {},
+          "lib/winrt45/Newtonsoft.Json.WinRT.dll": {}
+        }
+      },
+      "HtmlAgilityPack/1.4.9.5": {
+        "type": "package",
+        "compile": {
+          "lib/NetCore45/HtmlAgilityPack.dll": {}
+        },
+        "runtime": {
+          "lib/NetCore45/HtmlAgilityPack.dll": {}
+        }
+      },
       "Microsoft.CSharp/4.0.1": {
         "type": "package",
         "dependencies": {
@@ -4427,6 +4491,38 @@
       }
     },
     "UAP,Version=v10.0/win10-arm-aot": {
+      "HigLabo.Net.Rss.WinRT/1.0.0.4": {
+        "type": "package",
+        "dependencies": {
+          "HigLabo.Net.WinRT": "1.0.0.4"
+        },
+        "compile": {
+          "lib/winrt45/HigLabo.Net.Rss.WinRT.dll": {}
+        },
+        "runtime": {
+          "lib/winrt45/HigLabo.Net.Rss.WinRT.dll": {}
+        }
+      },
+      "HigLabo.Net.WinRT/1.0.0.4": {
+        "type": "package",
+        "compile": {
+          "lib/winrt45/HigLabo.Net.WinRT.dll": {},
+          "lib/winrt45/Newtonsoft.Json.WinRT.dll": {}
+        },
+        "runtime": {
+          "lib/winrt45/HigLabo.Net.WinRT.dll": {},
+          "lib/winrt45/Newtonsoft.Json.WinRT.dll": {}
+        }
+      },
+      "HtmlAgilityPack/1.4.9.5": {
+        "type": "package",
+        "compile": {
+          "lib/NetCore45/HtmlAgilityPack.dll": {}
+        },
+        "runtime": {
+          "lib/NetCore45/HtmlAgilityPack.dll": {}
+        }
+      },
       "Microsoft.CSharp/4.0.1": {
         "type": "package",
         "dependencies": {
@@ -6732,6 +6828,38 @@
       }
     },
     "UAP,Version=v10.0/win10-x64": {
+      "HigLabo.Net.Rss.WinRT/1.0.0.4": {
+        "type": "package",
+        "dependencies": {
+          "HigLabo.Net.WinRT": "1.0.0.4"
+        },
+        "compile": {
+          "lib/winrt45/HigLabo.Net.Rss.WinRT.dll": {}
+        },
+        "runtime": {
+          "lib/winrt45/HigLabo.Net.Rss.WinRT.dll": {}
+        }
+      },
+      "HigLabo.Net.WinRT/1.0.0.4": {
+        "type": "package",
+        "compile": {
+          "lib/winrt45/HigLabo.Net.WinRT.dll": {},
+          "lib/winrt45/Newtonsoft.Json.WinRT.dll": {}
+        },
+        "runtime": {
+          "lib/winrt45/HigLabo.Net.WinRT.dll": {},
+          "lib/winrt45/Newtonsoft.Json.WinRT.dll": {}
+        }
+      },
+      "HtmlAgilityPack/1.4.9.5": {
+        "type": "package",
+        "compile": {
+          "lib/NetCore45/HtmlAgilityPack.dll": {}
+        },
+        "runtime": {
+          "lib/NetCore45/HtmlAgilityPack.dll": {}
+        }
+      },
       "Microsoft.CSharp/4.0.1": {
         "type": "package",
         "dependencies": {
@@ -9007,6 +9135,38 @@
       }
     },
     "UAP,Version=v10.0/win10-x64-aot": {
+      "HigLabo.Net.Rss.WinRT/1.0.0.4": {
+        "type": "package",
+        "dependencies": {
+          "HigLabo.Net.WinRT": "1.0.0.4"
+        },
+        "compile": {
+          "lib/winrt45/HigLabo.Net.Rss.WinRT.dll": {}
+        },
+        "runtime": {
+          "lib/winrt45/HigLabo.Net.Rss.WinRT.dll": {}
+        }
+      },
+      "HigLabo.Net.WinRT/1.0.0.4": {
+        "type": "package",
+        "compile": {
+          "lib/winrt45/HigLabo.Net.WinRT.dll": {},
+          "lib/winrt45/Newtonsoft.Json.WinRT.dll": {}
+        },
+        "runtime": {
+          "lib/winrt45/HigLabo.Net.WinRT.dll": {},
+          "lib/winrt45/Newtonsoft.Json.WinRT.dll": {}
+        }
+      },
+      "HtmlAgilityPack/1.4.9.5": {
+        "type": "package",
+        "compile": {
+          "lib/NetCore45/HtmlAgilityPack.dll": {}
+        },
+        "runtime": {
+          "lib/NetCore45/HtmlAgilityPack.dll": {}
+        }
+      },
       "Microsoft.CSharp/4.0.1": {
         "type": "package",
         "dependencies": {
@@ -11321,6 +11481,38 @@
       }
     },
     "UAP,Version=v10.0/win10-x86": {
+      "HigLabo.Net.Rss.WinRT/1.0.0.4": {
+        "type": "package",
+        "dependencies": {
+          "HigLabo.Net.WinRT": "1.0.0.4"
+        },
+        "compile": {
+          "lib/winrt45/HigLabo.Net.Rss.WinRT.dll": {}
+        },
+        "runtime": {
+          "lib/winrt45/HigLabo.Net.Rss.WinRT.dll": {}
+        }
+      },
+      "HigLabo.Net.WinRT/1.0.0.4": {
+        "type": "package",
+        "compile": {
+          "lib/winrt45/HigLabo.Net.WinRT.dll": {},
+          "lib/winrt45/Newtonsoft.Json.WinRT.dll": {}
+        },
+        "runtime": {
+          "lib/winrt45/HigLabo.Net.WinRT.dll": {},
+          "lib/winrt45/Newtonsoft.Json.WinRT.dll": {}
+        }
+      },
+      "HtmlAgilityPack/1.4.9.5": {
+        "type": "package",
+        "compile": {
+          "lib/NetCore45/HtmlAgilityPack.dll": {}
+        },
+        "runtime": {
+          "lib/NetCore45/HtmlAgilityPack.dll": {}
+        }
+      },
       "Microsoft.CSharp/4.0.1": {
         "type": "package",
         "dependencies": {
@@ -13596,6 +13788,38 @@
       }
     },
     "UAP,Version=v10.0/win10-x86-aot": {
+      "HigLabo.Net.Rss.WinRT/1.0.0.4": {
+        "type": "package",
+        "dependencies": {
+          "HigLabo.Net.WinRT": "1.0.0.4"
+        },
+        "compile": {
+          "lib/winrt45/HigLabo.Net.Rss.WinRT.dll": {}
+        },
+        "runtime": {
+          "lib/winrt45/HigLabo.Net.Rss.WinRT.dll": {}
+        }
+      },
+      "HigLabo.Net.WinRT/1.0.0.4": {
+        "type": "package",
+        "compile": {
+          "lib/winrt45/HigLabo.Net.WinRT.dll": {},
+          "lib/winrt45/Newtonsoft.Json.WinRT.dll": {}
+        },
+        "runtime": {
+          "lib/winrt45/HigLabo.Net.WinRT.dll": {},
+          "lib/winrt45/Newtonsoft.Json.WinRT.dll": {}
+        }
+      },
+      "HtmlAgilityPack/1.4.9.5": {
+        "type": "package",
+        "compile": {
+          "lib/NetCore45/HtmlAgilityPack.dll": {}
+        },
+        "runtime": {
+          "lib/NetCore45/HtmlAgilityPack.dll": {}
+        }
+      },
       "Microsoft.CSharp/4.0.1": {
         "type": "package",
         "dependencies": {
@@ -15911,6 +16135,58 @@
     }
   },
   "libraries": {
+    "HigLabo.Net.Rss.WinRT/1.0.0.4": {
+      "sha512": "Z2+BuH2F4e3GjSFBMpBYhESD6sSM7MCd4pld1nglI46qtCpOJR9xDIHQ7ZaEYMh1/aiBPc+BURA5jjgBpo4OBQ==",
+      "type": "package",
+      "files": [
+        "HigLabo.Net.Rss.WinRT.1.0.0.4.nupkg.sha512",
+        "HigLabo.Net.Rss.WinRT.nuspec",
+        "lib/winrt45/HigLabo.Net.Rss.WinRT.dll"
+      ]
+    },
+    "HigLabo.Net.WinRT/1.0.0.4": {
+      "sha512": "LPdBWwXe0n8gab9zofYS2T1Kq/3KY8widfgurQ7oqtrytAhUE3DUyUDW77zb/FrAIYIiAKDiGcoC8BHI7+4EJA==",
+      "type": "package",
+      "files": [
+        "HigLabo.Net.WinRT.1.0.0.4.nupkg.sha512",
+        "HigLabo.Net.WinRT.nuspec",
+        "lib/winrt45/HigLabo.Net.WinRT.dll",
+        "lib/winrt45/Newtonsoft.Json.WinRT.dll"
+      ]
+    },
+    "HtmlAgilityPack/1.4.9.5": {
+      "sha512": "i5di/J7GO4y2kx/hhVzctPrBI8G2cefWZDMDU/FdOUD3iVkiidN1q1NDZ0FvqrhB28LSaYaM4Z0hs86Tnp0IzA==",
+      "type": "package",
+      "files": [
+        "HAPIcon.png",
+        "HtmlAgilityPack.1.4.9.5.nupkg.sha512",
+        "HtmlAgilityPack.nuspec",
+        "lib/Net20/HtmlAgilityPack.dll",
+        "lib/Net20/HtmlAgilityPack.pdb",
+        "lib/Net20/HtmlAgilityPack.xml",
+        "lib/Net40-client/HtmlAgilityPack.dll",
+        "lib/Net40-client/HtmlAgilityPack.pdb",
+        "lib/Net40-client/HtmlAgilityPack.xml",
+        "lib/Net40/HtmlAgilityPack.XML",
+        "lib/Net40/HtmlAgilityPack.dll",
+        "lib/Net40/HtmlAgilityPack.pdb",
+        "lib/Net45/HtmlAgilityPack.XML",
+        "lib/Net45/HtmlAgilityPack.dll",
+        "lib/Net45/HtmlAgilityPack.pdb",
+        "lib/NetCore45/HtmlAgilityPack.dll",
+        "lib/NetCore45/HtmlAgilityPack.pdb",
+        "lib/NetCore45/HtmlAgilityPack.pri",
+        "lib/NetCore45/HtmlAgilityPack.xml",
+        "lib/portable-net45+netcore45+wp8+MonoAndroid+MonoTouch/HtmlAgilityPack.dll",
+        "lib/portable-net45+netcore45+wp8+MonoAndroid+MonoTouch/HtmlAgilityPack.pdb",
+        "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid+MonoTouch/HtmlAgilityPack.dll",
+        "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid+MonoTouch/HtmlAgilityPack.pdb",
+        "lib/sl5/HtmlAgilityPack.XML",
+        "lib/sl5/HtmlAgilityPack.dll",
+        "lib/sl5/HtmlAgilityPack.pdb",
+        "readme.txt"
+      ]
+    },
     "Microsoft.CSharp/4.0.1": {
       "sha512": "17h8b5mXa87XYKrrVqdgZ38JefSUqLChUQpXgSnpzsM0nDOhE40FTeNWOJ/YmySGV6tG6T8+hjz6vxbknHJr6A==",
       "type": "package",
@@ -21950,6 +22226,8 @@
   },
   "projectFileDependencyGroups": {
     "": [
+      "HigLabo.Net.Rss.WinRT >= 1.0.0.4",
+      "HtmlAgilityPack >= 1.4.9.5",
       "Microsoft.NETCore.UniversalWindowsPlatform >= 5.2.2",
       "Newtonsoft.Json >= 9.0.1",
       "WeatherNet.uwp >= 2.1.2"

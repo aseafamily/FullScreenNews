@@ -85,6 +85,7 @@ namespace ServiceHelpers
             var result = await searchClient.GetAsync(string.Format("{0}?q={1}&safeSearch=Strict&imageType=Photo&color=ColorOnly&count={2}&offset={3}{4}", ImageSearchEndPoint, WebUtility.UrlEncode(query), count, offset, string.IsNullOrEmpty(imageContent) ? "" : "&imageContent=" + imageContent));
             result.EnsureSuccessStatusCode();
             var json = await result.Content.ReadAsStringAsync();
+            /*
             dynamic data = JObject.Parse(json);
             if (data.value != null && data.value.Count > 0)
             {
@@ -93,7 +94,7 @@ namespace ServiceHelpers
                     urls.Add(data.value[i].contentUrl.Value);
                 }
             }
-
+            */
             return urls;
         }
 
@@ -104,6 +105,7 @@ namespace ServiceHelpers
             var result = await autoSuggestionClient.GetAsync(string.Format("{0}/?q={1}&mkt={2}", AutoSuggestionEndPoint, WebUtility.UrlEncode(query), market));
             result.EnsureSuccessStatusCode();
             var json = await result.Content.ReadAsStringAsync();
+            /*
             dynamic data = JObject.Parse(json);
             if (data.suggestionGroups != null && data.suggestionGroups.Count > 0 &&
                 data.suggestionGroups[0].searchSuggestions != null)
@@ -113,6 +115,7 @@ namespace ServiceHelpers
                     suggestions.Add(data.suggestionGroups[0].searchSuggestions[i].displayText.Value);
                 }
             }
+            */
 
             return suggestions;
         }
@@ -127,6 +130,7 @@ namespace ServiceHelpers
             var result = await searchClient.GetAsync(string.Format("{0}/?q={1}&count={2}&offset={3}&mkt={4}", NewsSearchEndPoint, WebUtility.UrlEncode(query), count, offset, market));
             result.EnsureSuccessStatusCode();
             var json = await result.Content.ReadAsStringAsync();
+            /*
             dynamic data = JObject.Parse(json);
 
             if (data.value != null && data.value.Count > 0)
@@ -149,6 +153,7 @@ namespace ServiceHelpers
                     });
                 }
             }
+            */
             return articles;
         }
 

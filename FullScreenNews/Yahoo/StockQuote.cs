@@ -17,7 +17,7 @@ namespace FullScreenNews.Yahoo
         {
             HttpClient client = new HttpClient();
 
-            string ticks = "SPY+MSFT+NGD+TWTR+TSLA+SCTY+GOOG+APTS";
+            string ticks = "SPY+MSFT+NGD+TWTR+TSLA+SCTY+GOOG";
             string url = string.Format(QuotesUrlFormat, ticks);
 
             List<Tick> tickList = new List<Tick>();
