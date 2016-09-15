@@ -19,9 +19,9 @@ namespace FullScreenNews
             ClientSettings.ApiUrl = ApiUrl;
 
             var result = await CurrentWeather.GetByCityIdAsync(5808079, "en", "imperial");
-            var fileDays = await FiveDaysForecast.GetByCityIdAsync(5808079, "en", "imperial");
+            var fiveDays = await FiveDaysForecast.GetByCityIdAsync(5808079, "en", "imperial");
 
-            if (result.Success && fileDays.Success)
+            if (result.Success && fiveDays.Success)
             {
                 List<WeatherResult> wr = new List<FullScreenNews.WeatherResult>();
 
@@ -37,7 +37,13 @@ namespace FullScreenNews
 
                 for (int i =7; i<40; i+=8)
                 {
-                    var r = fileDays.Items[i];
+                    int index = i;
+                    if (index >= fiveDays.Items.Count())
+                    {
+                        index = fiveDays.Items.Count() - 1;
+                    }
+
+                    var r = fiveDays.Items[index];
                     wr.Add(new WeatherResult
                     {
                         Temp = r.Temp.ToString("N0"),

@@ -3,6 +3,7 @@ using HtmlAgilityPack;
 using ServiceHelpers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -18,11 +19,14 @@ namespace FullScreenNews
         private static List<string> Rsses = new List<string>()
         {
             "https://news.google.com/news/feeds?output=rss",
-            "http://www.ifanr.com/feed",
             "http://feeds2.feedburner.com/businessinsider",
+            "http://www.ifanr.com/feed",
+            "http://feeds.feedburner.com/TheMoneyGame",
             "http://slickdeals.net/newsearch.php?mode=popdeals&searcharea=deals&searchin=first&rss=1",
-            "http://www.ftchinese.com/rss/hotstoryby7day",
-            "http://feeds.feedburner.com/blogspot/wdMq"
+            "http://feeds.feedburner.com/blogspot/wdMq",
+            "http://www.codinghorror.com/blog/index.xml",
+            "http://zhihurss.miantiao.me/dailyrss",
+            "http://feeds.feedburner.com/MileNerd"
         };
 
         public NewsArticles()
@@ -38,59 +42,75 @@ namespace FullScreenNews
             RssClient cl = new RssClient();
             foreach (string url in Rsses)
             {
-                var items = await cl.GetRssFeedAsync(new Uri(url));
-                foreach (var item in items.Items)
-                {
-                    string img = null;
-                    string description;
-
-                    if (string.IsNullOrWhiteSpace(item.Description))
+                try
+                { 
+                    var items = await cl.GetRssFeedAsync(new Uri(url));
+                    foreach (var item in items.Items)
                     {
-                        continue;
-                    }
+                        string img = null;
+                        string description;
 
-                    HtmlDocument doc = new HtmlDocument();
-                    doc.LoadHtml("<div>" + item.Description + "</div>");
-
-                    var col = doc.DocumentNode.DescendantsAndSelf();
-                    foreach (var node in col)
-                    {
-                        if (node.Name == "img")
+                        if (string.IsNullOrWhiteSpace(item.Description))
                         {
-                            img = node.Attributes.Single(a => a.Name == "src").Value;
-                            if (img.StartsWith("/"))
+                            continue;
+                        }
+
+                        HtmlDocument doc = new HtmlDocument();
+                        doc.LoadHtml("<div>" + item.Description + "</div>");
+
+                        var col = doc.DocumentNode.DescendantsAndSelf();
+                        foreach (var node in col)
+                        {
+                            if (node.Name == "img")
                             {
-                                img = "http:" + img;
+                                var att = node.Attributes.Single(a => a.Name == "src");
+
+                                if (att != null)
+                                {
+                                    img = node.Attributes.Single(a => a.Name == "src").Value;
+                                    if (img.StartsWith("/"))
+                                    {
+                                        img = "http:" + img;
+                                    }
+
+                                    break;
+                                }
+                                else
+                                {
+                                    continue;
+                                }
                             }
-
-                            break;
                         }
-                    }
 
-                    description = doc.DocumentNode.InnerText;
+                        description = doc.DocumentNode.InnerText;
 
-                    // Remove HTML characters
-                    description = Regex.Replace(description, "&nbsp;", " ").Trim();
-                    description = Regex.Replace(description, @"\s{2,}", " ");
+                        // Remove HTML characters
+                        description = Regex.Replace(description, "&nbsp;", " ").Trim();
+                        description = Regex.Replace(description, @"\s{2,}", " ");
 
-                    if (img == null)
-                    {
-                        if (items.Image != null && !string.IsNullOrWhiteSpace(items.Image.Url))
+                        if (img == null)
                         {
-                            img = items.Image.Url;
+                            if (items.Image != null && !string.IsNullOrWhiteSpace(items.Image.Url))
+                            {
+                                img = items.Image.Url;
+                            }
                         }
-                    }
 
-                    localArticles.Add(new NewsArticle()
-                    {
-                        Title = item.Title,
-                        Description = description,
-                        Url = item.Link,
-                        ThumbnailUrl = img,
-                        Provider = items.Channel.Title,
-                        Refreshed = DateTime.Now,
-                        Published = item.PubDate.HasValue? item.PubDate.Value.DateTime : DateTime.Now
-                    });
+                        localArticles.Add(new NewsArticle()
+                        {
+                            Title = item.Title,
+                            Description = description,
+                            Url = item.Link,
+                            ThumbnailUrl = img,
+                            Provider = items.Channel.Title,
+                            Refreshed = DateTime.Now,
+                            Published = item.PubDate.HasValue? item.PubDate.Value.DateTime : DateTime.Now
+                        });
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.Write(e.Message);
                 }
 
                 if (this.articles.Count == 0)

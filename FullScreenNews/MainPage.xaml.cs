@@ -307,6 +307,12 @@ namespace FullScreenNews
                     imageWeatherDay3.Source = new BitmapImage(new Uri(wr[3].IconUrl));
                     imageWeatherDay4.Source = new BitmapImage(new Uri(wr[4].IconUrl));
                     imageWeatherDay5.Source = new BitmapImage(new Uri(wr[5].IconUrl));
+
+                    textWeatherDay1.Text = string.Format("{0}°", wr[1].Temp);
+                    textWeatherDay2.Text = string.Format("{0}°", wr[2].Temp);
+                    textWeatherDay3.Text = string.Format("{0}°", wr[3].Temp);
+                    textWeatherDay4.Text = string.Format("{0}°", wr[4].Temp);
+                    textWeatherDay5.Text = string.Format("{0}°", wr[5].Temp);
                 }
 
                 if (!first)
