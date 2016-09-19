@@ -12,8 +12,14 @@ using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Graphics.Imaging;
+using Windows.Storage;
+using Windows.Storage.FileProperties;
+using Windows.Storage.Search;
+using Windows.Storage.Streams;
 using Windows.System.Display;
 using Windows.UI;
+using Windows.UI.Input;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -56,6 +62,14 @@ namespace FullScreenNews
         int backgroundIndex = 0;
 
         public ObservableCollection<Ticker> tickers;
+
+        private IReadOnlyList<StorageFile> photoList = null;
+
+        private int photoIndex = 0;
+
+        private bool isPhotoLoading = false;
+
+        private string bingImageText;
 
         public MainPage()
         {
@@ -122,13 +136,147 @@ namespace FullScreenNews
 
             articles = new FullScreenNews.NewsArticles();
 
-            this.DoubleTapped += (s, e) =>
+            this.textTitle.DoubleTapped += (s, e) =>
             {
                 if (this.articles.Current != null)
                 {
                     this.Frame.Navigate(typeof(InternalBrowser), articles.Current.Url);
                 }
             };
+
+            this.gridLocalImage.DoubleTapped += (s, e) =>
+            {
+                if (this.imgLocal.Visibility == Visibility.Visible)
+                {
+                    this.imgLocal.Visibility = Visibility.Collapsed;
+                    this.gridLocalImage.Background = null;
+                    this.gridLocalImage.Opacity = 0;
+                    this.textImg.Text = bingImageText;
+                }
+                else
+                {
+                    this.imgLocal.Visibility = Visibility.Visible;
+                    this.gridLocalImage.Background = new SolidColorBrush(Color.FromArgb(255, 10, 10, 10));
+                    this.gridLocalImage.Opacity = 0.9;
+                    this.textImg.Text = string.Empty;
+                }
+            };
+
+            //this.imgLocal.ManipulationMode = ManipulationModes.TranslateRailsX | ManipulationModes.TranslateRailsY;
+            this.imgLocal.PointerReleased += (s, e) =>
+            {
+                if (this.photoList == null || this.photoList.Count == 0)
+                {
+                    return;
+                }
+
+                PointerPoint point = e.GetCurrentPoint(this.imgLocal);
+                if (point.Position.X < this.imgLocal.RenderSize.Width / 2)
+                {
+                    // Left
+                    this.photoIndex--;
+                    DisplayPhoto();  
+                }
+                else
+                {
+                    // Right
+                    this.photoIndex++;
+                    DisplayPhoto();
+
+                }
+            };
+        }
+
+        private async void SetImageFromLibrary()
+        {
+            if (this.isPhotoLoading)
+            {
+                return;
+            }
+
+            if (photoList == null)
+            {
+                this.isPhotoLoading = true;
+
+                //var myPictures = await Windows.Storage.StorageLibrary.GetLibraryAsync
+                //   (Windows.Storage.KnownLibraryId.Pictures);
+
+                //IObservableVector<Windows.Storage.StorageFolder> myPictureFolders = myPictures.SaveFolder;
+                // Get the user's Pictures folder.
+                // Enable the corresponding capability in the app manifest file.
+                StorageFolder picturesFolder = KnownFolders.PicturesLibrary;
+
+                // Get the files in the current folder, sorted by date.
+                photoList = await picturesFolder.GetFilesAsync(CommonFileQuery.OrderBySearchRank);
+
+                // Iterate over the results and print the list of files
+                // to the Visual Studio Output window.
+                /*
+                foreach (StorageFile file in sortedItems)
+                {
+                    string name = file.Name;
+                    Debug.WriteLine(file.Name + ", " + file.DateCreated);
+                }
+                */
+
+                this.isPhotoLoading = false;
+            }
+
+            int count = photoList.Count();
+
+            if (photoIndex >= count)
+            {
+                photoIndex = 0;
+            }
+
+            await DisplayPhoto();
+        }
+
+        private async Task DisplayPhoto()
+        {
+            if (this.photoList == null || this.photoList.Count == 0)
+            {
+                return;
+            }
+
+            if (this.photoIndex == this.photoList.Count)
+            {
+                this.photoIndex = 0;
+            }
+
+            if (this.photoIndex < 0)
+            {
+                this.photoIndex = this.photoList.Count - 1;
+            }
+
+            StorageFile file = photoList[this.photoIndex];
+            //imgLocal.Source = new BitmapImage(new Uri(file.Path));
+            //imgLocal.Source = new BitmapImage(new Uri(@"D:/Pictures/googlelogo_color_272x92dp.png", UriKind.Absolute));
+
+            //textImg.Text = file.DateCreated.ToString();
+
+            ImageProperties props = await file.Properties.GetImagePropertiesAsync();
+            DateTimeOffset date = props.DateTaken;
+            if (date != null)
+            {
+                textImg.Text = date.ToString();
+            }
+            else
+            {
+                textImg.Text = string.Empty;
+            }
+
+
+            using (IRandomAccessStream fileStream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read))
+            {
+                BitmapImage bitmapImage = new BitmapImage();
+
+                await bitmapImage.SetSourceAsync(fileStream);
+
+                //gridLocalImage.Background = new SolidColorBrush(Colors.Black);
+
+                imgLocal.Source = bitmapImage;
+            }
         }
 
         private async void SetBackgroundFromBing()
@@ -164,6 +312,7 @@ namespace FullScreenNews
                     text = text.Split(new string[] { "(" }, StringSplitOptions.RemoveEmptyEntries)[0];
                 }
                 textImg.Text = text;
+                bingImageText = text;
 
                 if (!string.IsNullOrEmpty(url))
                 {
@@ -283,6 +432,19 @@ namespace FullScreenNews
 
             //pageTimer.Stop();
             //Debug.WriteLine(span.Seconds);
+
+            if (first || (int)span.TotalSeconds % 10 == 0)
+            {
+                if (this.imgLocal.Visibility == Visibility.Visible)
+                {
+                    if (!first)
+                    {
+                        this.photoIndex++;
+                    }
+
+                    SetImageFromLibrary();
+                }
+            }
 
             if (first || (int)span.TotalSeconds % 300 == 0)
             {

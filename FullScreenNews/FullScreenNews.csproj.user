@@ -10,7 +10,7 @@
     <UseEmulator>true</UseEmulator>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <RemoteDebugMachine>alma-x1</RemoteDebugMachine>
+    <RemoteDebugMachine>alma-one</RemoteDebugMachine>
     <AuthenticationMode>Windows</AuthenticationMode>
     <RemoteDebugEnabled>false</RemoteDebugEnabled>
   </PropertyGroup>
