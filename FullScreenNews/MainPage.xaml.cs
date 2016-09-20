@@ -20,6 +20,7 @@ using Windows.Storage.Streams;
 using Windows.System.Display;
 using Windows.UI;
 using Windows.UI.Input;
+using Windows.UI.Popups;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -29,6 +30,8 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
+using Windows.Devices.Geolocation;
+using Windows.Services.Maps;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -63,13 +66,15 @@ namespace FullScreenNews
 
         public ObservableCollection<Ticker> tickers;
 
-        private IReadOnlyList<StorageFile> photoList = null;
+        private List<StorageFile> photoList = null;
 
         private int photoIndex = 0;
 
         private bool isPhotoLoading = false;
 
         private string bingImageText;
+
+        public object ReverseGeocodeQuery { get; private set; }
 
         public MainPage()
         {
@@ -144,7 +149,7 @@ namespace FullScreenNews
                 }
             };
 
-            this.gridLocalImage.DoubleTapped += (s, e) =>
+            this.textImg.DoubleTapped += (s, e) =>
             {
                 if (this.imgLocal.Visibility == Visibility.Visible)
                 {
@@ -162,6 +167,30 @@ namespace FullScreenNews
                 }
             };
 
+            this.imgLocal.DoubleTapped += async (s, e) =>
+            {
+                this.pageTimer.Stop();
+
+                var dialog = new MessageDialog("Are you sure to delete this photo?");
+                dialog.Title = "Really?";
+                dialog.Commands.Add(new UICommand { Label = "Ok", Id = 0 });
+                dialog.Commands.Add(new UICommand { Label = "Cancel", Id = 1 });
+                var res = await dialog.ShowAsync();
+
+                if ((int)res.Id == 0)
+                {
+                    StorageFile file = this.photoList[this.photoIndex];
+                    await file.DeleteAsync();
+
+                    this.photoList.RemoveAt(this.photoIndex);
+
+                    ++this.photoIndex;
+                    await DisplayPhoto();
+                }
+                
+                this.pageTimer.Start();
+            };
+
             //this.imgLocal.ManipulationMode = ManipulationModes.TranslateRailsX | ManipulationModes.TranslateRailsY;
             this.imgLocal.PointerReleased += (s, e) =>
             {
@@ -171,13 +200,13 @@ namespace FullScreenNews
                 }
 
                 PointerPoint point = e.GetCurrentPoint(this.imgLocal);
-                if (point.Position.X < this.imgLocal.RenderSize.Width / 2)
+                if (point.Position.X < this.imgLocal.RenderSize.Width / 3)
                 {
                     // Left
                     this.photoIndex--;
                     DisplayPhoto();  
                 }
-                else
+                else if (point.Position.X > this.imgLocal.RenderSize.Width * 0.67)
                 {
                     // Right
                     this.photoIndex++;
@@ -207,7 +236,7 @@ namespace FullScreenNews
                 StorageFolder picturesFolder = KnownFolders.PicturesLibrary;
 
                 // Get the files in the current folder, sorted by date.
-                photoList = await picturesFolder.GetFilesAsync(CommonFileQuery.OrderBySearchRank);
+                IReadOnlyList<StorageFile> localPhotoList = await picturesFolder.GetFilesAsync(CommonFileQuery.OrderBySearchRank);
 
                 // Iterate over the results and print the list of files
                 // to the Visual Studio Output window.
@@ -218,6 +247,26 @@ namespace FullScreenNews
                     Debug.WriteLine(file.Name + ", " + file.DateCreated);
                 }
                 */
+
+                // shuffle it
+                photoList = new List<StorageFile>();
+
+                //make a list of the index for list
+                foreach (var file in localPhotoList)
+                {
+                    photoList.Add(file);
+                }
+
+                Random rng = new Random();
+                int n = photoList.Count;
+                while (n > 1)
+                {
+                    n--;
+                    int k = rng.Next(n + 1);
+                    StorageFile value = photoList[k];
+                    photoList[k] = photoList[n];
+                    photoList[n] = value;
+                }
 
                 this.isPhotoLoading = false;
             }
@@ -255,28 +304,81 @@ namespace FullScreenNews
 
             //textImg.Text = file.DateCreated.ToString();
 
-            ImageProperties props = await file.Properties.GetImagePropertiesAsync();
-            DateTimeOffset date = props.DateTaken;
-            if (date != null)
-            {
-                textImg.Text = date.ToString();
-            }
-            else
-            {
-                textImg.Text = string.Empty;
-            }
-
-
             using (IRandomAccessStream fileStream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read))
             {
                 BitmapImage bitmapImage = new BitmapImage();
-
                 await bitmapImage.SetSourceAsync(fileStream);
 
-                //gridLocalImage.Background = new SolidColorBrush(Colors.Black);
+                if (bitmapImage.PixelWidth > bitmapImage.PixelHeight)
+                {
+                    imgLocal.Width = (int)gridLocalImage.RenderSize.Width - 20;
+                    imgLocal.Stretch = Stretch.UniformToFill;
+                }
+                else
+                {
+                    imgLocal.Stretch = Stretch.Uniform;
+                }
 
                 imgLocal.Source = bitmapImage;
             }
+
+            ImageProperties props = await file.Properties.GetImagePropertiesAsync();
+            DateTimeOffset date = props.DateTaken;
+            string dateString;
+            if (date != null)
+            {
+                dateString = date.ToString("M/d/yyyy h:mm tt");
+            }
+            else
+            {
+                dateString = string.Empty;
+            }
+            textImg.Text = dateString;
+
+            if (props.Longitude != null && props.Latitude != null)
+            {
+                // Nearby location to use as a query hint.
+                BasicGeoposition queryHint = new BasicGeoposition();
+                queryHint.Latitude = props.Latitude.Value;
+                queryHint.Longitude = props.Longitude.Value;
+                Geopoint hintPoint = new Geopoint(queryHint);
+
+                MapLocationFinderResult result =
+                    await MapLocationFinder.FindLocationsAtAsync(hintPoint);
+
+                // If the query returns results, display the coordinates
+                // of the first result.
+                if (result.Status == MapLocationFinderStatus.Success)
+                {
+                    string txt = string.Empty;
+                    if (!string.IsNullOrWhiteSpace(result.Locations[0].Address.Town))
+                    {
+                        txt = result.Locations[0].Address.Town;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(result.Locations[0].Address.Region))
+                    {
+                        if (txt.Length > 0)
+                        {
+                            txt += ", ";
+                        }
+                        txt += result.Locations[0].Address.Region;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(dateString))
+                    {
+                        if (txt.Length > 0)
+                        {
+                            txt += " - ";
+                        }
+                        txt += dateString;
+                    }
+
+                    textImg.Text = txt;
+                }
+            }
+
+
         }
 
         private async void SetBackgroundFromBing()
@@ -433,7 +535,7 @@ namespace FullScreenNews
             //pageTimer.Stop();
             //Debug.WriteLine(span.Seconds);
 
-            if (first || (int)span.TotalSeconds % 10 == 0)
+            if (first || (int)span.TotalSeconds % 25 == 0)
             {
                 if (this.imgLocal.Visibility == Visibility.Visible)
                 {
@@ -446,7 +548,7 @@ namespace FullScreenNews
                 }
             }
 
-            if (first || (int)span.TotalSeconds % 300 == 0)
+            if (first /* || (int)span.TotalSeconds % 300 == 0 */)
             {
                 SetBackgroundFromBing();
             }
