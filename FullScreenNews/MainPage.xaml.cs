@@ -155,7 +155,7 @@ namespace FullScreenNews
                 {
                     this.imgLocal.Visibility = Visibility.Collapsed;
                     this.gridLocalImage.Background = null;
-                    this.gridLocalImage.Opacity = 0;
+                    this.gridLocalImage.Opacity = 1;
                     this.textImg.Text = bingImageText;
                 }
                 else
@@ -213,6 +213,21 @@ namespace FullScreenNews
                     DisplayPhoto();
 
                 }
+            };
+
+            this.textDesc.PointerReleased += (s, e) =>
+            {
+                PointerPoint point = e.GetCurrentPoint(this.textDesc);
+                if (point.Position.X < this.textDesc.RenderSize.Width / 2)
+                {
+                    this.articles.MovePrevious();
+                }
+                else
+                {
+                    this.articles.MoveNext();
+                }
+
+                ShowArticle(this.articles.Current);
             };
         }
 
@@ -383,7 +398,7 @@ namespace FullScreenNews
 
         private async void SetBackgroundFromBing()
         {
-            const int backgroundCount = 10;    
+            const int backgroundCount = 1;    
             // We can specify the region we want for the Bing Image of the Day.
             string strRegion = "en-US";
             //string strRegion = "zh-CN";
@@ -421,12 +436,14 @@ namespace FullScreenNews
                     imgBackground.ImageSource = new BitmapImage(new Uri("https://www.bing.com" + url));
                 }
 
+                /*
                 backgroundIndex++;
 
                 if (backgroundIndex >= jsonObject["images"].GetArray().Count())
                 {
                     backgroundIndex = 0;
                 }
+                */
             }
         }
 

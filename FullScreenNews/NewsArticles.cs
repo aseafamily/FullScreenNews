@@ -24,7 +24,6 @@ namespace FullScreenNews
             "http://feeds.feedburner.com/TheMoneyGame",
             "http://slickdeals.net/newsearch.php?mode=popdeals&searcharea=deals&searchin=first&rss=1",
             "http://feeds.feedburner.com/blogspot/wdMq",
-            "http://www.codinghorror.com/blog/index.xml",
             "http://zhihurss.miantiao.me/dailyrss",
             "http://feeds.feedburner.com/MileNerd"
         };
