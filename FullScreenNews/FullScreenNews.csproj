@@ -97,6 +97,10 @@
     </Compile>
     <Compile Include="Bing\BingSearch.cs" />
     <Compile Include="Bing\BingSearchHelper.cs" />
+    <Compile Include="ChinaDate.cs" />
+    <Compile Include="Clock.xaml.cs">
+      <DependentUpon>Clock.xaml</DependentUpon>
+    </Compile>
     <Compile Include="InternalBrowser.xaml.cs">
       <DependentUpon>InternalBrowser.xaml</DependentUpon>
     </Compile>
@@ -118,6 +122,7 @@
     <None Include="FullScreenNews_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\modern_face.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -132,6 +137,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Clock.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="InternalBrowser.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

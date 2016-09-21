@@ -88,6 +88,8 @@ namespace FullScreenNews
                 view.TryEnterFullScreenMode();
             }
 
+            textChinaDate.Text = ChinaDate.GetChinaDate(DateTime.Now);
+
             tickers = new ObservableCollection<FullScreenNews.Ticker>();
             /*
             tickers.Add(new Ticker
@@ -192,7 +194,7 @@ namespace FullScreenNews
             };
 
             //this.imgLocal.ManipulationMode = ManipulationModes.TranslateRailsX | ManipulationModes.TranslateRailsY;
-            this.imgLocal.PointerReleased += (s, e) =>
+            this.gridLocalImage.PointerReleased += (s, e) =>
             {
                 if (this.photoList == null || this.photoList.Count == 0)
                 {
@@ -326,7 +328,7 @@ namespace FullScreenNews
 
                 if (bitmapImage.PixelWidth > bitmapImage.PixelHeight)
                 {
-                    imgLocal.Width = (int)gridLocalImage.RenderSize.Width - 20;
+                    imgLocal.Width = (int)gridLocalImage.RenderSize.Width;
                     imgLocal.Stretch = Stretch.UniformToFill;
                 }
                 else
@@ -350,50 +352,58 @@ namespace FullScreenNews
             }
             textImg.Text = dateString;
 
-            if (props.Longitude != null && props.Latitude != null)
+            if (string.IsNullOrEmpty(props.Title))
             {
-                // Nearby location to use as a query hint.
-                BasicGeoposition queryHint = new BasicGeoposition();
-                queryHint.Latitude = props.Latitude.Value;
-                queryHint.Longitude = props.Longitude.Value;
-                Geopoint hintPoint = new Geopoint(queryHint);
-
-                MapLocationFinderResult result =
-                    await MapLocationFinder.FindLocationsAtAsync(hintPoint);
-
-                // If the query returns results, display the coordinates
-                // of the first result.
-                if (result.Status == MapLocationFinderStatus.Success)
+                if (props.Longitude != null && props.Latitude != null)
                 {
-                    string txt = string.Empty;
-                    if (!string.IsNullOrWhiteSpace(result.Locations[0].Address.Town))
-                    {
-                        txt = result.Locations[0].Address.Town;
-                    }
+                    // Nearby location to use as a query hint.
+                    BasicGeoposition queryHint = new BasicGeoposition();
+                    queryHint.Latitude = props.Latitude.Value;
+                    queryHint.Longitude = props.Longitude.Value;
+                    Geopoint hintPoint = new Geopoint(queryHint);
 
-                    if (!string.IsNullOrWhiteSpace(result.Locations[0].Address.Region))
+                    MapLocationFinderResult result =
+                        await MapLocationFinder.FindLocationsAtAsync(hintPoint);
+
+                    // If the query returns results, display the coordinates
+                    // of the first result.
+                    if (result.Status == MapLocationFinderStatus.Success)
                     {
-                        if (txt.Length > 0)
+                        string txt = string.Empty;
+                        if (!string.IsNullOrWhiteSpace(result.Locations[0].Address.Town))
                         {
-                            txt += ", ";
+                            txt = result.Locations[0].Address.Town;
                         }
-                        txt += result.Locations[0].Address.Region;
-                    }
 
-                    if (!string.IsNullOrWhiteSpace(dateString))
-                    {
-                        if (txt.Length > 0)
+                        if (!string.IsNullOrWhiteSpace(result.Locations[0].Address.Region))
                         {
-                            txt += " - ";
+                            if (txt.Length > 0)
+                            {
+                                txt += ", ";
+                            }
+                            txt += result.Locations[0].Address.Region;
                         }
-                        txt += dateString;
-                    }
 
-                    textImg.Text = txt;
+                        if (!string.IsNullOrWhiteSpace(dateString))
+                        {
+                            if (txt.Length > 0)
+                            {
+                                txt += " - ";
+                            }
+                            txt += dateString;
+                        }
+
+                        textImg.Text = txt;
+
+                        props.Title = txt;
+                        props.SavePropertiesAsync();
+                    }
                 }
             }
-
-
+            else
+            {
+                textImg.Text = props.Title;
+            }
         }
 
         private async void SetBackgroundFromBing()

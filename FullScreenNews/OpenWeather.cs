@@ -35,6 +35,11 @@ namespace FullScreenNews
                     Date = result.Item.Date
                 });
 
+                if (fiveDays.Items.Count() == 0)
+                {
+                    return null;
+                }
+
                 for (int i =7; i<40; i+=8)
                 {
                     int index = i;
