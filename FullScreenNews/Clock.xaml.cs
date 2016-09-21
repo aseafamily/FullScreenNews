@@ -203,11 +203,11 @@ namespace FullScreenNews
             _minutehand.RotationAngleInDegrees = targetTime.Minute * 6;
 
             int by = 255;
-            int gy = 255;
-            int ry = 255;
-            int bg = 50;
-            int gg = 50;
-            int rg = 50;
+            int gy = 175;
+            int ry = 120;
+            int bg = 44;
+            int gg = 32;
+            int rg = 26;
 
             double hour = targetTime.Hour + targetTime.Minute / 60;
             if (hour > 12)
