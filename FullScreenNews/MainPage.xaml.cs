@@ -55,6 +55,7 @@ namespace FullScreenNews
     {
         private DispatcherTimer pageTimer;
         private DateTime startTime;
+        private DateTime alarmStartTime;
         private NewsArticles articles;
         private bool first = true;
         private DisplayRequest displayRequest = null; // class level to make it work!!
@@ -88,7 +89,10 @@ namespace FullScreenNews
                 view.TryEnterFullScreenMode();
             }
 
-            textChinaDate.Text = ChinaDate.GetChinaDate(DateTime.Now);
+            DateTimeOffset localTime = DateTimeOffset.Now;
+            TimeZoneInfo hwZone = TimeZoneInfo.FindSystemTimeZoneById("China Standard Time");
+            DateTimeOffset targetTime  = TimeZoneInfo.ConvertTime(localTime, hwZone);
+            textChinaDate.Text = ChinaDate.GetChinaDate(targetTime.DateTime);
 
             tickers = new ObservableCollection<FullScreenNews.Ticker>();
             /*
@@ -128,6 +132,7 @@ namespace FullScreenNews
             };
 
             startTime = DateTime.Now;
+            alarmStartTime = startTime;
 
             //textTimer.Text = DateTime.Now.ToString("h:mm dddd MMMM d");
 
@@ -191,6 +196,12 @@ namespace FullScreenNews
                 }
                 
                 this.pageTimer.Start();
+            };
+
+            this.textTime.DoubleTapped += async (s, e) =>
+            {
+                this.alarmStartTime = DateTime.Now;
+                await this.UpdateAlarmBar();
             };
 
             //this.imgLocal.ManipulationMode = ManipulationModes.TranslateRailsX | ManipulationModes.TranslateRailsY;
@@ -550,6 +561,39 @@ namespace FullScreenNews
             }
         }
 
+        private bool isAlarmOn = false;
+
+        private async Task UpdateAlarmBar()
+        {
+            const int alarmSeconds = (int)(45 * 60);
+
+            TimeSpan span = DateTime.Now - alarmStartTime;
+            if (span.TotalSeconds < alarmSeconds)
+            {
+                gridAlarm.Margin = new Thickness(0, 0, gridLocalImage.RenderSize.Width - (span.TotalSeconds / alarmSeconds * gridLocalImage.RenderSize.Width), 0);
+            }
+            else
+            {
+                if (!isAlarmOn)
+                {
+                    gridAlarm.Margin = new Thickness(0, 0, 0, 0);
+
+                    isAlarmOn = true;
+
+                    var dialog = new MessageDialog("Have a rest for a few minutes!!!");
+                    dialog.Title = "Hello";
+                    dialog.Commands.Add(new UICommand { Label = "Ok", Id = 0 });
+
+                    var res = await dialog.ShowAsync();
+
+                    if ((int)res.Id == 0)
+                    {
+                        alarmStartTime = DateTime.Now;
+                        isAlarmOn = false;
+                    }
+                }
+            }
+        }
         
         private async void PageTimer_Tick(object sender, object e)
         {
@@ -561,6 +605,8 @@ namespace FullScreenNews
 
             //pageTimer.Stop();
             //Debug.WriteLine(span.Seconds);
+
+            UpdateAlarmBar();
 
             if (first || (int)span.TotalSeconds % 25 == 0)
             {
