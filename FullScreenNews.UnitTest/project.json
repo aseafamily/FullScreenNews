@@ -1,11 +1,6 @@
 ﻿{
   "dependencies": {
-    "Autofac": "4.0.0",
-    "HigLabo.Net.Rss.WinRT": "1.0.0.4",
-    "HtmlAgilityPack": "1.4.9.5",
-    "Microsoft.NETCore.UniversalWindowsPlatform": "5.1.0",
-    "Newtonsoft.Json": "9.0.1",
-    "WeatherNet.uwp": "2.1.2"
+    "Microsoft.NETCore.UniversalWindowsPlatform": "5.1.0"
   },
   "frameworks": {
     "uap10.0": {}

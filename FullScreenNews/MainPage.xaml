@@ -134,7 +134,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <WebView HorizontalAlignment="Left" Grid.Row="1" Margin="0,-5,0,0" VerticalAlignment="Top" Width="350" Height="2000" Source="http://aseafamily.azurewebsites.net/ticker.html"/>
+            <WebView HorizontalAlignment="Left" Grid.Row="1" Margin="0,-5,0,0" VerticalAlignment="Top" Width="350" Height="2000" Source="http://aseafamily.azurewebsites.net/ticker.aspx?l=https://twitter.com/alexmajin/lists/everyday" />
         </Grid>
 
 

@@ -32,6 +32,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.Devices.Geolocation;
 using Windows.Services.Maps;
+using FullScreenNews.Providers.Weather;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -54,6 +55,8 @@ namespace FullScreenNews
     public sealed partial class MainPage : Page
     {
         private DispatcherTimer pageTimer;
+        private DispatcherTimer pictureTimer;
+
         private DateTime startTime;
         private DateTime alarmStartTime;
         private NewsArticles articles;
@@ -76,6 +79,8 @@ namespace FullScreenNews
         private string bingImageText;
 
         public object ReverseGeocodeQuery { get; private set; }
+
+        private bool skipNextArticle = false;
 
         public MainPage()
         {
@@ -134,19 +139,26 @@ namespace FullScreenNews
             startTime = DateTime.Now;
             alarmStartTime = startTime;
 
-            //textTimer.Text = DateTime.Now.ToString("h:mm dddd MMMM d");
+            // screen always on
+            displayRequest = new DisplayRequest();
+            displayRequest.RequestActive(); //to request keep display on
+            //displayRequest.RequestRelease(); //to release request of keep display on
 
             pageTimer = new DispatcherTimer();
             pageTimer.Tick += PageTimer_Tick;
             pageTimer.Interval = new TimeSpan(0, 0, 1);
             pageTimer.Start();
 
-            // screen always on
-            displayRequest = new DisplayRequest();
-            displayRequest.RequestActive(); //to request keep display on
-            //displayRequest.RequestRelease(); //to release request of keep display on
+            SetImageFromLibrary();
+            pictureTimer = new DispatcherTimer();
+            pictureTimer.Tick += PictureTimer_Tick;
+            pictureTimer.Interval = new TimeSpan(0, 0, 25);
+            pictureTimer.Start();
 
+            
             articles = new FullScreenNews.NewsArticles();
+
+            SetBackgroundFromBing();
 
             this.textTitle.DoubleTapped += (s, e) =>
             {
@@ -176,7 +188,7 @@ namespace FullScreenNews
 
             this.imgLocal.DoubleTapped += async (s, e) =>
             {
-                this.pageTimer.Stop();
+                this.pictureTimer.Stop();
 
                 var dialog = new MessageDialog("Are you sure to delete this photo?");
                 dialog.Title = "Really?";
@@ -195,7 +207,7 @@ namespace FullScreenNews
                     await DisplayPhoto();
                 }
                 
-                this.pageTimer.Start();
+                this.pictureTimer.Start();
             };
 
             this.textTime.DoubleTapped += async (s, e) =>
@@ -215,6 +227,9 @@ namespace FullScreenNews
                 PointerPoint point = e.GetCurrentPoint(this.imgLocal);
                 if (point.Position.X < this.imgLocal.RenderSize.Width / 3)
                 {
+                    this.pictureTimer.Stop();
+                    this.pictureTimer.Start();
+
                     // Left
                     this.photoIndex--;
                     DisplayPhoto();  
@@ -225,11 +240,14 @@ namespace FullScreenNews
                     this.photoIndex++;
                     DisplayPhoto();
 
+                    this.pictureTimer.Stop();
+                    this.pictureTimer.Start();
                 }
             };
 
             this.textDesc.PointerReleased += (s, e) =>
             {
+                this.skipNextArticle = true;
                 PointerPoint point = e.GetCurrentPoint(this.textDesc);
                 if (point.Position.X < this.textDesc.RenderSize.Width / 2)
                 {
@@ -242,6 +260,15 @@ namespace FullScreenNews
 
                 ShowArticle(this.articles.Current);
             };
+        }
+
+        private void PictureTimer_Tick(object sender, object e)
+        {
+            if (this.imgLocal.Visibility == Visibility.Visible)
+            {
+                ++this.photoIndex;
+                SetImageFromLibrary();
+            }
         }
 
         private async void SetImageFromLibrary()
@@ -449,7 +476,11 @@ namespace FullScreenNews
                 {
                     text = text.Split(new string[] { "(" }, StringSplitOptions.RemoveEmptyEntries)[0];
                 }
-                textImg.Text = text;
+
+                if (this.imgLocal.Visibility == Visibility.Collapsed)
+                {
+                    textImg.Text = text;
+                }
                 bingImageText = text;
 
                 if (!string.IsNullOrEmpty(url))
@@ -580,8 +611,19 @@ namespace FullScreenNews
 
                     isAlarmOn = true;
 
-                    var dialog = new MessageDialog("Have a rest for a few minutes!!!");
-                    dialog.Title = "Hello";
+                    // Play sound ms-appx:///Assets/Alarm03.wav
+                    MediaElement mysong = new MediaElement();
+                    Windows.Storage.StorageFolder folder = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFolderAsync("Assets");
+                    Windows.Storage.StorageFile file = await folder.GetFileAsync("Ring08.wav");
+                    var stream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read);
+                    mysong.SetSource(stream, file.ContentType);
+                    for (int i = 0; i < 2; i++)
+                    {
+                        mysong.Play();
+                    }
+
+                    var dialog = new MessageDialog("Have a rest for a few minutes after long time work ;-)");
+                    dialog.Title = "Hi buddy";
                     dialog.Commands.Add(new UICommand { Label = "Ok", Id = 0 });
 
                     var res = await dialog.ShowAsync();
@@ -608,36 +650,21 @@ namespace FullScreenNews
 
             UpdateAlarmBar();
 
-            if (first || (int)span.TotalSeconds % 25 == 0)
+            
+            if (first || (int)span.TotalSeconds % 3600 == 0)
             {
-                if (this.imgLocal.Visibility == Visibility.Visible)
-                {
-                    if (!first)
-                    {
-                        this.photoIndex++;
-                    }
-
-                    SetImageFromLibrary();
-                }
-            }
-
-            if (first /* || (int)span.TotalSeconds % 300 == 0 */)
-            {
-                SetBackgroundFromBing();
-            }
-
-            if (first || span.Seconds == 0)
-            {
-                GetQotes();
-            }
-
-            if (first || span.Seconds % 30 == 0)
-            {
-                List<WeatherResult> wr = await OpenWeather.GetWeather();
-                if (wr != null && wr.Count == 6)
+                List<WeatherResult> wr = await WeatherProvider.GetWeather();
+                if (wr != null && wr.Count > 6)
                 {
                     textWeatherToday.Text = string.Format("{0}°", wr[0].Temp);
+                    imageWeatherToday.Width = WeatherProvider.TodayWeatherIconWidth;
                     imageWeatherToday.Source = new BitmapImage(new Uri(wr[0].IconUrl));
+
+                    imageWeatherDay1.Width = WeatherProvider.ForcastWeatherIconWidth;
+                    imageWeatherDay2.Width = WeatherProvider.ForcastWeatherIconWidth;
+                    imageWeatherDay3.Width = WeatherProvider.ForcastWeatherIconWidth;
+                    imageWeatherDay4.Width = WeatherProvider.ForcastWeatherIconWidth;
+                    imageWeatherDay5.Width = WeatherProvider.ForcastWeatherIconWidth;
 
                     imageWeatherDay1.Source = new BitmapImage(new Uri(wr[1].IconUrl));
                     imageWeatherDay2.Source = new BitmapImage(new Uri(wr[2].IconUrl));
@@ -651,10 +678,27 @@ namespace FullScreenNews
                     textWeatherDay4.Text = string.Format("{0}°", wr[4].Temp);
                     textWeatherDay5.Text = string.Format("{0}°", wr[5].Temp);
                 }
+            }
+            
 
+            
+            if (first || span.Seconds == 0)
+            {
+                GetQotes();
+            }
+
+            if (first || span.Seconds % 30 == 0)
+            {
                 if (!first)
                 {
-                    articles.MoveNext();
+                    if (!skipNextArticle)
+                    {
+                        articles.MoveNext();
+                    }
+                    else
+                    {
+                        skipNextArticle = false;
+                    }
                 }
 
                 if ((!articles.HasArticle || span.Minutes % 30 == 0) && !articles.IsLoading)

@@ -6,24 +6,27 @@ using System.Threading.Tasks;
 using WeatherNet;
 using WeatherNet.Clients;
 
-namespace FullScreenNews
+namespace FullScreenNews.Providers.Weather
 {
     public class OpenWeather
     {
         public const string ApiUrl = "http://api.openweathermap.org/data/2.5";
         public const string ApiKey = "07fdb03f093152bf3aeb51952ae9a1e7";
 
+        public const int TodayWeatherIconWidth = 70;
+        public const int ForcastWeatherIconWidth = 50;
+
         public static async Task<List<WeatherResult>> GetWeather()
         {
             ClientSettings.ApiKey = ApiKey;
             ClientSettings.ApiUrl = ApiUrl;
 
-            var result = await CurrentWeather.GetByCityIdAsync(5808079, "en", "imperial");
-            var fiveDays = await FiveDaysForecast.GetByCityIdAsync(5808079, "en", "imperial");
+            var result = await CurrentWeather.GetByCityNameAsync("Seattle", "us", "en", "imperial");
+            var fiveDays = await FiveDaysForecast.GetByCityNameAsync("Seattle", "us", "en", "imperial");
 
             if (result.Success && fiveDays.Success)
             {
-                List<WeatherResult> wr = new List<FullScreenNews.WeatherResult>();
+                List<WeatherResult> wr = new List<WeatherResult>();
 
                 string temp = result.Item.Temp.ToString("N0");
                 string iconUrl = string.Format("http://openweathermap.org/img/w/{0}.png", result.Item.Icon);
@@ -64,12 +67,5 @@ namespace FullScreenNews
                 return null;
             }
         }
-    }
-
-    public class WeatherResult
-    {
-        public string Temp { get; set; }
-        public string IconUrl { get; set; }
-        public DateTime Date { get; set; }
     }
 }
