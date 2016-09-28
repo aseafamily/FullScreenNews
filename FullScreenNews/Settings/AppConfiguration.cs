@@ -41,6 +41,13 @@ namespace FullScreenNews.Settings
         };
 
         public string TwitterListUrl { get; set; } = "https://twitter.com/alexmajin/lists/everyday";
+        public string[] VideoChannels { get; set; } = new string[]
+        {
+            "https://www.youtube.com/embed/2QtdEq2tsh8?list=PLijOlz1lM3pzJjjR1jcIe5tfBYztEZIbY&autoplay=1",
+            "https://www.youtube.com/embed/emsfNK3hVak?list=PLwXMmy5fUrVyay9LGp8sni6WhCaOZsfAX&autoplay=1",
+            "https://www.youtube.com/embed/CSafNIRagRU?autoplay=1",
+            "https://www.youtube.com/embed/q7AiwWwiF_k?list=PLijOlz1lM3pzbT5NZ33h-S8PjQvrtOIDn&autoplay=1"
+        };
 
         public string WorldClock1Name = "Beijing";
         public string WorldClock1Timezone = "China Standard Time";

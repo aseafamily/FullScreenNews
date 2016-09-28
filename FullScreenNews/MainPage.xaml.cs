@@ -53,6 +53,15 @@ namespace FullScreenNews
         public SolidColorBrush Color { get; set; }
     }
 
+    public enum ContentItem
+    {
+        None = 0,
+        Photo = 1,
+        LocalVideo = 2,
+        OnlineVideoBase = 3,
+        Configuration = 100
+    }
+
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
@@ -147,6 +156,9 @@ namespace FullScreenNews
             WorldClock2Name.Text = this.AppConfigurationLoader.Configuration.WorldClock2Name;
             WorldClock2.TimeZoneId = this.AppConfigurationLoader.Configuration.WorldClock2Timezone;
 
+            // set up popup menu
+            SetupMenus();
+
             tickers = new ObservableCollection<FullScreenNews.Ticker>();
 
             // swipe
@@ -186,14 +198,18 @@ namespace FullScreenNews
             pageTimer.Interval = new TimeSpan(0, 0, 1);
             pageTimer.Start();
 
-            SetImageFromLibrary();
+            SetBackgroundFromBing();
+
+            this.imgLocal.Visibility = Visibility.Collapsed;
+            this.gridLocalImage.Background = null;
+            this.gridLocalImage.Opacity = 1;
+
             pictureTimer = new DispatcherTimer();
             pictureTimer.Tick += PictureTimer_Tick;
             pictureTimer.Interval = new TimeSpan(0, 0, this.AppConfigurationLoader.Configuration.UpdatePhotoInterval);
-            pictureTimer.Start();
 
-
-            SetBackgroundFromBing();
+            // save time
+            SetImageFromLibrary();
 
             this.textTitle.DoubleTapped += (s, e) =>
             {
@@ -203,6 +219,7 @@ namespace FullScreenNews
                 }
             };
 
+            /*
             this.textImg.DoubleTapped += (s, e) =>
             {
                 if (this.imgLocal.Visibility == Visibility.Visible)
@@ -220,6 +237,7 @@ namespace FullScreenNews
                     this.textImg.Text = string.Empty;
                 }
             };
+            */
 
             this.imgLocal.DoubleTapped += async (s, e) =>
             {
@@ -260,6 +278,7 @@ namespace FullScreenNews
                 }
 
                 PointerPoint point = e.GetCurrentPoint(this.imgLocal);
+
                 if (point.Position.X < this.imgLocal.RenderSize.Width / 3)
                 {
                     this.pictureTimer.Stop();
@@ -297,12 +316,99 @@ namespace FullScreenNews
             };
         }
 
+        private void SetupMenus()
+        {
+            this.menuFlyout.Items.Clear();
+
+            MenuFlyoutItem item = new ToggleMenuFlyoutItem();
+            item.Text = "None";
+            item.Tag = ContentItem.None;
+            item.Click += option_Click;
+            (item as ToggleMenuFlyoutItem).IsChecked = true;
+
+            this.menuFlyout.Items.Add(item);
+
+            item = new ToggleMenuFlyoutItem();
+            item.Text = "Photo";
+            item.Tag = ContentItem.Photo;
+            item.Click += option_Click;
+
+            this.menuFlyout.Items.Add(item);
+
+            item = new ToggleMenuFlyoutItem();
+            item.Text = "Local video";
+            item.Tag = ContentItem.LocalVideo;
+            item.Click += option_Click;
+
+            this.menuFlyout.Items.Add(item);
+
+            for (int i = 0; i < this.AppConfigurationLoader.Configuration.VideoChannels.Length; i++)
+            {
+                item = new ToggleMenuFlyoutItem();
+                item.Text = "Online video " + i.ToString();
+                item.Tag = this.AppConfigurationLoader.Configuration.VideoChannels[i];
+                item.Click += option_Click;
+
+                this.menuFlyout.Items.Add(item);
+            }
+
+            this.menuFlyout.Items.Add(new MenuFlyoutSeparator());
+
+            item = new MenuFlyoutItem();
+            item.Text = "Configuration";
+            item.Tag = ContentItem.Configuration;
+            item.Click += option_Click;
+
+            this.menuFlyout.Items.Add(item);
+        }
+
         private void PictureTimer_Tick(object sender, object e)
         {
             if (this.imgLocal.Visibility == Visibility.Visible)
             {
                 ++this.photoIndex;
                 SetImageFromLibrary();
+            }
+        }
+
+        private async void SetVideoFromLibrary()
+        {
+            StorageFolder videoFolder = KnownFolders.VideosLibrary;
+            IReadOnlyList<StorageFile> localList = await videoFolder.GetFilesAsync(CommonFileQuery.OrderBySearchRank);
+
+            List<StorageFile> videoList = new List<StorageFile>();
+            foreach (var f in localList)
+            {
+                videoList.Add(f);
+            }
+
+            Logger.Log("Local video files number is: " + localList.Count.ToString(), Category.Debug, Priority.Low);
+
+            Random rng = new Random();
+            int n = videoList.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                StorageFile value = videoList[k];
+                videoList[k] = videoList[n];
+                videoList[n] = value;
+            }
+
+            var file = videoList[0];
+
+
+            if (file != null)
+            {
+                Logger.Log("Play local video: " + videoList[0].Path, Category.Debug, Priority.Low);
+
+                localVideo.Width = this.gridLocalImage.RenderSize.Width;
+                localVideo.Height = this.gridLocalImage.RenderSize.Height;
+
+                var stream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read);
+                localVideo.SetSource(stream, file.ContentType);
+
+                localVideo.Play();
             }
         }
 
@@ -316,7 +422,7 @@ namespace FullScreenNews
             if (photoList == null)
             {
                 this.isPhotoLoading = true;
-
+                
                 //var myPictures = await Windows.Storage.StorageLibrary.GetLibraryAsync
                 //   (Windows.Storage.KnownLibraryId.Pictures);
 
@@ -688,7 +794,7 @@ namespace FullScreenNews
                 GetQotes();
             }
 
-            if (first || this.AppConfigurationLoader.Configuration.UpdateFeedInterval == 0)
+            if (first || seconds % this.AppConfigurationLoader.Configuration.UpdateFeedInterval == 0)
             {
                 GetNews();
             }
@@ -701,18 +807,15 @@ namespace FullScreenNews
 
         private async Task GetNews()
         {
-            if (!first)
+            if (!skipNextArticle)
             {
-                if (!skipNextArticle)
-                {
-                    NewsProvider.MoveNext();
-                }
-                else
-                {
-                    skipNextArticle = false;
-                }
+                NewsProvider.MoveNext();
             }
-
+            else
+            {
+                skipNextArticle = false;
+            }
+            
             if ((!NewsProvider.HasArticle || this.AppConfigurationLoader.Configuration.UpdateFeedSourcesInterval == 0) && !NewsProvider.IsLoading)
             {
                 await NewsProvider.SearchAsync();
@@ -821,6 +924,162 @@ namespace FullScreenNews
             this.NewsProvider.MoveNext();
 
             ShowArticle(this.NewsProvider.Current);
+        }
+
+        private void menuFlyout_Opened(object sender, object e)
+        {
+            
+        }
+
+        private void localVideo_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            if (localVideo.CurrentState == MediaElementState.Playing)
+            {
+                localVideo.Pause();
+            }
+            else
+            {
+                localVideo.Play();
+            }
+        }
+
+        private async void option_Click(object sender, RoutedEventArgs e)
+        {
+            MenuFlyoutItem item = sender as MenuFlyoutItem;
+            if (item != null)
+            {
+                Logger.Log("Menu item clicked tag: " + item.Tag.ToString(), Category.Debug, Priority.Low);
+            }
+
+            var tag = item.Tag;
+
+            ContentItem contentItem;
+            if (Enum.TryParse<ContentItem>(tag.ToString(), out contentItem))
+            {
+                switch (contentItem)
+                {
+                    case ContentItem.None:
+                        PlayNone();
+                        break;
+                    case ContentItem.Photo:
+                        PlayPhoto();
+                        break;
+                    case ContentItem.LocalVideo:
+                        PlayLocalVideo();
+                        break;
+                    case ContentItem.OnlineVideoBase:
+                        break;
+                    case ContentItem.Configuration:
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                // play online video
+                PlayOnlineVideo(tag.ToString());
+            }
+
+            if (item is ToggleMenuFlyoutItem)
+            {
+                foreach (var t in this.menuFlyout.Items)
+                {
+                    if (t is ToggleMenuFlyoutItem)
+                    {
+                        (t as ToggleMenuFlyoutItem).IsChecked = false;
+                    }
+                }
+
+                (item as ToggleMenuFlyoutItem).IsChecked = true;
+            }
+        }
+
+        private void PlayNone()
+        {
+            Logger.Log("PlayNone", Category.Debug, Priority.Low);
+
+            this.imgLocal.Visibility = Visibility.Collapsed;
+            this.gridLocalImage.Background = null;
+            this.gridLocalImage.Opacity = 1;
+            this.textImg.Text = bingImageText;
+
+            this.webVideo.Visibility = Visibility.Collapsed;
+            this.webVideo.Source = new Uri("about:blank");
+
+            this.localVideo.Visibility = Visibility.Collapsed;
+            this.localVideo.Stop();
+        }
+
+        private void PlayPhoto()
+        {
+            Logger.Log("PlayPhoto", Category.Debug, Priority.Low);
+
+            this.webVideo.Visibility = Visibility.Collapsed;
+            this.webVideo.Source = new Uri("about:blank");
+
+            this.localVideo.Visibility = Visibility.Collapsed;
+            this.localVideo.Stop();
+
+            this.imgLocal.Visibility = Visibility.Visible;
+            this.gridLocalImage.Background = new SolidColorBrush(Color.FromArgb(255, 10, 10, 10));
+            this.gridLocalImage.Opacity = 0.9;
+            this.textImg.Text = string.Empty;
+
+            SetImageFromLibrary();
+            pictureTimer.Start();
+        }
+
+        private void PlayOnlineVideo(string source)
+        {
+            Logger.Log("PlayOnlineVideo", Category.Debug, Priority.Low);
+
+            if (source.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                this.imgLocal.Visibility = Visibility.Collapsed;
+                this.pictureTimer.Stop();
+
+                this.localVideo.Visibility = Visibility.Collapsed;
+                this.localVideo.Stop();
+
+                this.webVideo.Visibility = Visibility.Visible;
+                this.webVideo.Source = new Uri(source);
+            }
+        }
+
+        private async Task PlayLocalVideo()
+        {
+            Logger.Log("PlayLocalVideo", Category.Debug, Priority.Low);
+
+            this.imgLocal.Visibility = Visibility.Collapsed;
+            this.pictureTimer.Stop();
+            this.gridLocalImage.Background = null;
+            this.gridLocalImage.Opacity = 1;
+
+            this.webVideo.Visibility = Visibility.Collapsed;
+            this.webVideo.Source = new Uri("about:blank");
+
+            this.localVideo.Visibility = Visibility.Visible;
+
+            var openPicker = new Windows.Storage.Pickers.FileOpenPicker();
+
+            openPicker.FileTypeFilter.Add(".wmv");
+            openPicker.FileTypeFilter.Add(".mp4");
+            openPicker.FileTypeFilter.Add(".wma");
+
+            var file = await openPicker.PickSingleFileAsync();
+
+            // mediaPlayer is a MediaElement defined in XAML
+            if (file != null)
+            {
+                localVideo.Width = this.gridLocalImage.RenderSize.Width;
+                localVideo.Height = this.gridLocalImage.RenderSize.Height;
+
+                var stream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read);
+                localVideo.SetSource(stream, file.ContentType);
+
+                localVideo.Play();
+            }
         }
     }
 }

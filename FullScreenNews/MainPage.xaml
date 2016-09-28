@@ -26,22 +26,25 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Image x:Name="imgLocal" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0"></Image>
+                <Image x:Name="imgLocal" Grid.Row="0" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0"></Image>
                 <TextBlock x:Name="textImg" HorizontalAlignment="Right" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Bottom" Height="40" FontSize="24" Foreground="#FFFDF8F8" Margin="10,0,20,0"/>
+                <WebView x:Name="webVideo" Source="" Visibility="Collapsed"/>
+                <MediaElement x:Name="localVideo" Width="400" Height="400" Tapped="localVideo_Tapped"></MediaElement>
             </Grid>
 
             <Grid x:Name="gridAlarm" VerticalAlignment="Bottom" Height="2" Background="Green" Opacity="0.9" Margin="0,0,2000,0"></Grid>
 
-            <Grid Background="#FF293133" Opacity="0.9" Grid.Row="1">
+            <Grid Background="#FF293133" Opacity="0.9" Grid.Row="1" HorizontalAlignment="Left" Width="1570">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="320" />
                     <ColumnDefinition Width="100" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="15" />
                 </Grid.ColumnDefinitions>
 
                 <Grid Grid.Column="0">
-                    <TextBlock x:Name="textTime" HorizontalAlignment="Left" Margin="20,-9,0,0" TextWrapping="Wrap" Text="12:00" FontSize="72" Width="174" Foreground="#FFF7F6F6" VerticalAlignment="Top"/>
+                    <TextBlock x:Name="textTime" HorizontalAlignment="Left" Margin="13,-9,0,0" TextWrapping="Wrap" Text="12:00" FontSize="72" Width="174" Foreground="#FFF7F6F6" VerticalAlignment="Top"/>
                     <TextBlock x:Name="textTimer" HorizontalAlignment="Left" Margin="20,77,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" FontSize="24" Foreground="#FFF7F6F6" />
                     <TextBlock x:Name="textChinaDate" HorizontalAlignment="Left" Margin="20,113,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" FontSize="15" Foreground="#FFF7F6F6" />
                     <Image x:Name="imageWeatherToday" HorizontalAlignment="Left" Height="70" Margin="196,15,0,0" VerticalAlignment="Top" Width="70" Opacity="0.8"/>
@@ -98,15 +101,6 @@
                     </Grid>
                 </Grid>
                 <Grid Grid.Column="3">
-                    <!--
-                    <TextBlock x:Name="textTick1" HorizontalAlignment="Left" Height="25" Margin="30,22,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF7F2F2"/>
-                    <TextBlock x:Name="textTick2" HorizontalAlignment="Left" Height="25" Margin="30,97,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
-                    <TextBlock x:Name="textTick3" HorizontalAlignment="Left" Height="25" Margin="30,72,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
-                    <TextBlock x:Name="textTick4" HorizontalAlignment="Left" Height="25" Margin="30,47,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
-                    <TextBlock x:Name="textTick5" HorizontalAlignment="Left" Height="25" Margin="30,122,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
-                    <TextBlock x:Name="textTick6" HorizontalAlignment="Left" Height="25" Margin="30,147,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
-                    <TextBlock x:Name="textTick7" HorizontalAlignment="Left" Height="25" Margin="30,172,0,0" TextWrapping="Wrap" Text="AAAA" VerticalAlignment="Top" Width="158" FontWeight="Bold" Foreground="#FFF9F6F6"/>
-                    -->
                     <GridView ItemsSource="{x:Bind tickers}" Margin="10,10,5,20">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="local:Ticker">
@@ -125,6 +119,24 @@
                     </GridView>
 
                     <TextBlock x:Name="textTickRefresh" HorizontalAlignment="Right" Margin="20,179,30,3" TextWrapping="Wrap" Text="Refreshed:" FontSize="12" Foreground="#FFD6CECE"/>
+                </Grid>
+                <Grid Grid.Column="4">
+                    <Button FontSize="10" FontWeight="Bold" Foreground="#FFFBF8F8" Margin="0,0,0,145" Height="91">
+                        <Button.Content>
+                            <TextBlock FontSize="15" FontWeight="Bold" Foreground="#FFFBF8F8" Margin="-5,-35,0,-30" Width="15">.<LineBreak/>.<LineBreak/>.</TextBlock>
+                        </Button.Content>
+                        <Button.Flyout>
+                            <MenuFlyout x:Name="menuFlyout" Opened="menuFlyout_Opened">
+                                <!--
+                                <ToggleMenuFlyoutItem x:Name="itemContentNone" Text="None" Click="option_Click" Tag="0" />
+                                <ToggleMenuFlyoutItem x:Name="itemContentPhoto" Text="Photo Slide Show" Click="option_Click" Tag="1" />
+                                <ToggleMenuFlyoutItem x:Name="itemContentVideo" Text="Video" Click="option_Click" Tag="2" />
+                                <MenuFlyoutSeparator/>
+                                <MenuFlyoutItem Text="Configuration" Click="option_Click" Tag="10" />
+                                -->
+                            </MenuFlyout>
+                        </Button.Flyout>
+                    </Button>
                 </Grid>
             </Grid>
         </Grid>
