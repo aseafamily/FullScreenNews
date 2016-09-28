@@ -4,6 +4,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FullScreenNews.Providers.Weather;
 using System.Collections.Generic;
+using FullScreenNews.Logging;
+using FullScreenNews.Settings;
 
 namespace FullScreenNews.UnitTest
 {
@@ -15,7 +17,9 @@ namespace FullScreenNews.UnitTest
         {
             Task.Run(async () =>
             {
-                var results = await NationalWeather.GetWeather();
+                NationalWeatherProvider w = new NationalWeatherProvider(new DebugLogger(), new SimpleAppConfigurationLoader(new DebugLogger()));
+
+                var results = await w.GetWeather();
 
                 Assert.IsTrue(results.Count > 1);
 
@@ -23,15 +27,17 @@ namespace FullScreenNews.UnitTest
         }
 
         [TestMethod]
-        public void TestWeatherProvider()
+        public void TestOpenWeather()
         {
+            /*
             Task.Run(async () =>
             {
-                List<WeatherResult> results = await WeatherProvider.GetWeather();
+                List<WeatherResult> results = await IWeatherProvider.GetWeather();
 
                 Assert.IsTrue(results.Count > 1);
 
             }).GetAwaiter().GetResult();
+            */
         }
     }
 }

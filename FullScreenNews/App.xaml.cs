@@ -1,4 +1,12 @@
-﻿using System;
+﻿using Autofac;
+using FullScreenNews.Logging;
+using FullScreenNews.Providers.News;
+using FullScreenNews.Providers.Stock;
+using FullScreenNews.Providers.Weather;
+using FullScreenNews.Settings;
+using MetroLog;
+using MetroLog.Targets;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -24,6 +32,15 @@ namespace FullScreenNews
     sealed partial class App : Application
     {
         /// <summary>
+        /// Gets the <see cref="ILoggerFacade"/> for the application.
+        /// </summary>
+        /// <value>A <see cref="ILoggerFacade"/> instance.</value>
+        private ILoggerFacade Logger { get; set; }
+
+        private IContainer Container { get; set; }
+
+
+        /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
         /// </summary>
@@ -32,11 +49,60 @@ namespace FullScreenNews
             this.InitializeComponent();
             this.Suspending += OnSuspending;
             DebugSettings.BindingFailed += DebugSettings_BindingFailed;
+
+#if DEBUG
+            LogManagerFactory.DefaultConfiguration.AddTarget(LogLevel.Trace, LogLevel.Debug, new StreamingFileTarget());
+            //LogManagerFactory.DefaultConfiguration.AddTarget(LogLevel.Trace, LogLevel.Fatal, new SQLiteTarget());
+#else
+            LogManagerFactory.DefaultConfiguration.AddTarget(LogLevel.Info, LogLevel.Fatal, new StreamingFileTarget());
+            //LogManagerFactory.DefaultConfiguration.AddTarget(LogLevel.Info, LogLevel.Fatal, new SQLiteTarget());
+#endif
+
+            Logger = CreateLogger();
+            if (Logger == null)
+            {
+                throw new InvalidOperationException("Logger Facade is null");
+            }
+
+            Logger.Log("Created Logger", Category.Debug, Priority.Low);
+
+            CreateAndConfigureContainer();
         }
 
-        void DebugSettings_BindingFailed(object sender, BindingFailedEventArgs e)
+        private void CreateAndConfigureContainer()
         {
-            Debug.WriteLine(e.Message);
+            Logger.Log("Creating and Configuring Container", Category.Debug, Priority.Low);
+
+            var builder = new ContainerBuilder();
+            ConfigureContainer(builder);
+            Container = builder.Build();
+
+        }
+
+        private void ConfigureContainer(ContainerBuilder builder)
+        {
+            builder.RegisterType<MetroLogger>().As<ILoggerFacade>();
+            builder.RegisterType<SimpleAppConfigurationLoader>().As<IAppConfigurationLoader>().SingleInstance();
+            builder.RegisterType<NationalWeatherProvider>().As<IWeatherProvider>();
+            //builder.RegisterType<OpenWeatherProvider>().As<IWeatherProvider>();
+            builder.RegisterType<FeedNewsProvider>().As<INewsProvider>();
+            builder.RegisterType<YahooStockQuoteProvider>().As<IStockQuoteProvider>();
+        }
+
+        private void DebugSettings_BindingFailed(object sender, BindingFailedEventArgs e)
+        {
+            Logger.Log(e.Message, Category.Exception, Priority.Medium);
+        }
+
+        /// <summary>
+        /// Create the <see cref="ILoggerFacade" /> used by the bootstrapper.
+        /// </summary>
+        /// <remarks>
+        /// The base implementation returns a new DebugLogger.
+        /// </remarks>
+        private ILoggerFacade CreateLogger()
+        {
+            return new DebugLogger();
         }
 
         /// <summary>
@@ -80,6 +146,9 @@ namespace FullScreenNews
                     // configuring the new page by passing required information as a navigation
                     // parameter
                     rootFrame.Navigate(typeof(MainPage), e.Arguments);
+
+                    MainPage page = rootFrame.Content as MainPage;
+                    page.OnInitialized(this.Container);
                 }
                 // Ensure the current window is active
                 Window.Current.Activate();

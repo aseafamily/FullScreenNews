@@ -1,6 +1,7 @@
-﻿using HigLabo.Net.Rss;
+﻿using FullScreenNews.Logging;
+using FullScreenNews.Settings;
+using HigLabo.Net.Rss;
 using HtmlAgilityPack;
-using ServiceHelpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,41 +10,42 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace FullScreenNews
+namespace FullScreenNews.Providers.News
 {
-    public class NewsArticles
+    public class FeedNewsProvider : BaseProvider, INewsProvider
     {
         private List<NewsArticle> articles = new List<NewsArticle>();
         private int current = 0;
 
-        private static List<string> Rsses = new List<string>()
+        private string[] FeedResourceUrls;
+        
+        public FeedNewsProvider(ILoggerFacade logger, IAppConfigurationLoader appConfigurationLoader)
+            : base(logger, appConfigurationLoader)
         {
-            "https://news.google.com/news/feeds?output=rss",
-            "http://feeds2.feedburner.com/businessinsider",
-            "http://www.ifanr.com/feed",
-            "http://feeds.feedburner.com/TheMoneyGame",
-            "http://slickdeals.net/newsearch.php?mode=popdeals&searcharea=deals&searchin=first&rss=1",
-            "http://feeds.feedburner.com/blogspot/wdMq",
-            "http://zhihurss.miantiao.me/dailyrss",
-            "http://feeds.feedburner.com/MileNerd"
-        };
+            Logger.LogType<FeedNewsProvider>();
 
-        public NewsArticles()
-        {   
+            FeedResourceUrls = AppConfigurationLoader.Configuration.FeedSources;
         }
 
         public async Task SearchAsync()
         {
-            List<NewsArticle> localArticles = new List<ServiceHelpers.NewsArticle>();
+            Logger.Log("SearchAsync", Category.Debug, Priority.Low);
+
+            List<NewsArticle> localArticles = new List<NewsArticle>();
 
             this.IsLoading = true;
 
             RssClient cl = new RssClient();
-            foreach (string url in Rsses)
+            foreach (string url in FeedResourceUrls)
             {
                 try
-                { 
+                {
+                    Logger.Log("Getting feedUrl: " + url, Category.Debug, Priority.Low);
+
                     var items = await cl.GetRssFeedAsync(new Uri(url));
+
+                    Logger.Log("Got feeds number is: " + items.Items.Count.ToString(), Category.Debug, Priority.Low);
+
                     foreach (var item in items.Items)
                     {
                         string img = null;
@@ -62,7 +64,7 @@ namespace FullScreenNews
                         {
                             if (node.Name == "img")
                             {
-                                var att = node.Attributes.Single(a => a.Name == "src");
+                                var att = node.Attributes.SingleOrDefault(a => a.Name == "src");
 
                                 if (att != null)
                                 {
@@ -164,6 +166,8 @@ namespace FullScreenNews
                 }
                 else
                 {
+                    this.Logger.Log("Current is null", Category.Warn, Priority.Medium);
+
                     return null;
                 }
             }
@@ -171,6 +175,7 @@ namespace FullScreenNews
 
         public void MoveNext()
         {
+            this.Logger.Log(string.Format("Move next {0}/{1}", current, articles.Count), Category.Debug, Priority.Low);
             current++;
 
             if (current == articles.Count())
@@ -181,6 +186,8 @@ namespace FullScreenNews
 
         public void MovePrevious()
         {
+            this.Logger.Log(string.Format("Move previous {0}/{1}", current, articles.Count), Category.Debug, Priority.Low);
+
             if (current > 0)
             {
                 current--;

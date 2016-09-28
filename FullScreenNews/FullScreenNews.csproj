@@ -95,8 +95,6 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Bing\BingSearch.cs" />
-    <Compile Include="Bing\BingSearchHelper.cs" />
     <Compile Include="ChinaDate.cs" />
     <Compile Include="Clock.xaml.cs">
       <DependentUpon>Clock.xaml</DependentUpon>
@@ -104,20 +102,31 @@
     <Compile Include="InternalBrowser.xaml.cs">
       <DependentUpon>InternalBrowser.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MainMobile.xaml.cs">
-      <DependentUpon>MainMobile.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="Logging\Category.cs" />
+    <Compile Include="Logging\DebugLogger.cs" />
+    <Compile Include="Logging\ILoggerFacade.cs" />
+    <Compile Include="Logging\MetroLogger.cs" />
+    <Compile Include="Logging\Priority.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="NewsArticles.cs" />
-    <Compile Include="Providers\Weather\NationalWeather.cs" />
-    <Compile Include="Providers\Weather\OpenWeather.cs" />
+    <Compile Include="Providers\BaseProvider.cs" />
+    <Compile Include="Providers\News\INewsProvider.cs" />
+    <Compile Include="Providers\News\NewsArticle.cs" />
+    <Compile Include="Providers\News\FeedNewsProvider.cs" />
+    <Compile Include="Providers\Stock\IStockQuoteProvider.cs" />
+    <Compile Include="Providers\Stock\Tick.cs" />
+    <Compile Include="Providers\Weather\NationalWeatherProvider.cs" />
+    <Compile Include="Providers\Weather\OpenWeatherProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Providers\Weather\WeatherProvider.cs" />
+    <Compile Include="Providers\Weather\IWeatherProvider.cs" />
     <Compile Include="Providers\Weather\WeatherResult.cs" />
+    <Compile Include="Settings\AppConfiguration.cs" />
+    <Compile Include="Settings\IAppConfigurationLoader.cs" />
     <Compile Include="Settings\InitSettings.cs" />
-    <Compile Include="Yahoo\StockQuote.cs" />
+    <Compile Include="Settings\JsonHelper.cs" />
+    <Compile Include="Settings\SimpleAppConfigurationLoader.cs" />
+    <Compile Include="Providers\Stock\YahooStockQuoteProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -148,10 +157,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="InternalBrowser.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="MainMobile.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

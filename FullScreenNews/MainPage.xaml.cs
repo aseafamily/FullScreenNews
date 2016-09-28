@@ -1,5 +1,4 @@
-﻿using ServiceHelpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -33,6 +32,11 @@ using Windows.UI.Xaml.Navigation;
 using Windows.Devices.Geolocation;
 using Windows.Services.Maps;
 using FullScreenNews.Providers.Weather;
+using Autofac;
+using FullScreenNews.Providers.News;
+using FullScreenNews.Logging;
+using FullScreenNews.Settings;
+using FullScreenNews.Providers.Stock;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -54,12 +58,25 @@ namespace FullScreenNews
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        /// <summary>
+        /// Gets the <see cref="ILoggerFacade"/> for the application.
+        /// </summary>
+        /// <value>A <see cref="ILoggerFacade"/> instance.</value>
+        private ILoggerFacade Logger { get; set; }
+
+        private IContainer Container { get; set; }
+
+        private IAppConfigurationLoader AppConfigurationLoader { get; set; }
+
+        private INewsProvider NewsProvider;
+
+        private IStockQuoteProvider StockQuoteProvider;
+
         private DispatcherTimer pageTimer;
         private DispatcherTimer pictureTimer;
 
         private DateTime startTime;
         private DateTime alarmStartTime;
-        private NewsArticles articles;
         private bool first = true;
         private DisplayRequest displayRequest = null; // class level to make it work!!
 
@@ -86,26 +103,51 @@ namespace FullScreenNews
         {
             this.InitializeComponent();
 
-            // Full screen mode
+            // Set full screen mode
             ApplicationView view = ApplicationView.GetForCurrentView();
-            
             if (!view.IsFullScreenMode)
             {
                 view.TryEnterFullScreenMode();
             }
 
+            // Set screen always on
+            displayRequest = new DisplayRequest();
+            displayRequest.RequestActive(); //to request keep display on
+            //displayRequest.RequestRelease(); //to release request of keep display on
+        }
+
+        public void OnInitialized(IContainer container)
+        {
+            Container = container;
+
+            // Start work now!
+            this.Logger = container.Resolve<ILoggerFacade>();
+            this.Logger.LogType<MainPage>();
+            Logger.Log("MainPage OnOnInitialized", Category.Debug, Priority.Low);
+
+            this.AppConfigurationLoader = container.Resolve<IAppConfigurationLoader>();
+            this.NewsProvider = container.Resolve<INewsProvider>();
+            this.StockQuoteProvider = container.Resolve<IStockQuoteProvider>();
+
             DateTimeOffset localTime = DateTimeOffset.Now;
-            TimeZoneInfo hwZone = TimeZoneInfo.FindSystemTimeZoneById("China Standard Time");
-            DateTimeOffset targetTime  = TimeZoneInfo.ConvertTime(localTime, hwZone);
-            textChinaDate.Text = ChinaDate.GetChinaDate(targetTime.DateTime);
+
+            if (this.AppConfigurationLoader.Configuration.ShowChineseCalendar)
+            {
+                TimeZoneInfo hwZone = TimeZoneInfo.FindSystemTimeZoneById("China Standard Time");
+                DateTimeOffset targetTime = TimeZoneInfo.ConvertTime(localTime, hwZone);
+                textChinaDate.Text = ChinaDate.GetChinaDate(targetTime.DateTime);
+            }
+
+            TwitterList.Source = new Uri(string.Format(
+                "http://aseafamily.azurewebsites.net/ticker.aspx?l={0}",
+                this.AppConfigurationLoader.Configuration.TwitterListUrl));
+
+            WorldClock1Name.Text = this.AppConfigurationLoader.Configuration.WorldClock1Name;
+            WorldClock1.TimeZoneId = this.AppConfigurationLoader.Configuration.WorldClock1Timezone;
+            WorldClock2Name.Text = this.AppConfigurationLoader.Configuration.WorldClock2Name;
+            WorldClock2.TimeZoneId = this.AppConfigurationLoader.Configuration.WorldClock2Timezone;
 
             tickers = new ObservableCollection<FullScreenNews.Ticker>();
-            /*
-            tickers.Add(new Ticker
-            {
-                Symbol = "aaa"
-            });
-            */
 
             // swipe
             this.NavigationCacheMode = NavigationCacheMode.Required;
@@ -123,26 +165,21 @@ namespace FullScreenNews
                 if (x1 > x2)
                 {
                     // swiped left
-                    this.articles.MoveNext();
+                    this.NewsProvider.MoveNext();
                 }
                 else
                 {
                     // swiped right
-                    this.articles.MovePrevious();
+                    this.NewsProvider.MovePrevious();
                 }
 
-                ShowArticle(this.articles.Current);
+                ShowArticle(this.NewsProvider.Current);
 
                 pageTimer.Start();
             };
 
             startTime = DateTime.Now;
             alarmStartTime = startTime;
-
-            // screen always on
-            displayRequest = new DisplayRequest();
-            displayRequest.RequestActive(); //to request keep display on
-            //displayRequest.RequestRelease(); //to release request of keep display on
 
             pageTimer = new DispatcherTimer();
             pageTimer.Tick += PageTimer_Tick;
@@ -152,19 +189,17 @@ namespace FullScreenNews
             SetImageFromLibrary();
             pictureTimer = new DispatcherTimer();
             pictureTimer.Tick += PictureTimer_Tick;
-            pictureTimer.Interval = new TimeSpan(0, 0, 25);
+            pictureTimer.Interval = new TimeSpan(0, 0, this.AppConfigurationLoader.Configuration.UpdatePhotoInterval);
             pictureTimer.Start();
 
-            
-            articles = new FullScreenNews.NewsArticles();
 
             SetBackgroundFromBing();
 
             this.textTitle.DoubleTapped += (s, e) =>
             {
-                if (this.articles.Current != null)
+                if (this.NewsProvider.Current != null)
                 {
-                    this.Frame.Navigate(typeof(InternalBrowser), articles.Current.Url);
+                    this.Frame.Navigate(typeof(InternalBrowser), NewsProvider.Current.Url);
                 }
             };
 
@@ -206,7 +241,7 @@ namespace FullScreenNews
                     ++this.photoIndex;
                     await DisplayPhoto();
                 }
-                
+
                 this.pictureTimer.Start();
             };
 
@@ -232,7 +267,7 @@ namespace FullScreenNews
 
                     // Left
                     this.photoIndex--;
-                    DisplayPhoto();  
+                    DisplayPhoto();
                 }
                 else if (point.Position.X > this.imgLocal.RenderSize.Width * 0.67)
                 {
@@ -251,14 +286,14 @@ namespace FullScreenNews
                 PointerPoint point = e.GetCurrentPoint(this.textDesc);
                 if (point.Position.X < this.textDesc.RenderSize.Width / 2)
                 {
-                    this.articles.MovePrevious();
+                    this.NewsProvider.MovePrevious();
                 }
                 else
                 {
-                    this.articles.MoveNext();
+                    this.NewsProvider.MoveNext();
                 }
 
-                ShowArticle(this.articles.Current);
+                ShowArticle(this.NewsProvider.Current);
             };
         }
 
@@ -324,6 +359,8 @@ namespace FullScreenNews
                 }
 
                 this.isPhotoLoading = false;
+
+                this.Logger.Log("Loaded photos: " + photoList.Count().ToString(), Category.Debug, Priority.Low);
             }
 
             int count = photoList.Count();
@@ -358,6 +395,8 @@ namespace FullScreenNews
             //imgLocal.Source = new BitmapImage(new Uri(@"D:/Pictures/googlelogo_color_272x92dp.png", UriKind.Absolute));
 
             //textImg.Text = file.DateCreated.ToString();
+
+            this.Logger.Log(string.Format("Show photo [{0}/{1}]: {2}", this.photoIndex, this.photoList.Count, file.Path), Category.Debug, Priority.Low);
 
             using (IRandomAccessStream fileStream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read))
             {
@@ -446,6 +485,8 @@ namespace FullScreenNews
 
         private async void SetBackgroundFromBing()
         {
+            this.Logger.Log("SetBackgroundFromBing", Category.Info, Priority.Low);
+
             const int backgroundCount = 1;    
             // We can specify the region we want for the Bing Image of the Day.
             string strRegion = "en-US";
@@ -501,6 +542,8 @@ namespace FullScreenNews
 
         private async void GetQotes()
         {
+            this.Logger.Log("GetQotes", Category.Info, Priority.Low);
+
             if (this.tickers.Count > 0)
             {
                 // Not first time, let's see if market is closed
@@ -514,22 +557,9 @@ namespace FullScreenNews
                 }
             }
 
-            List<FullScreenNews.Yahoo.Tick> ticks = await FullScreenNews.Yahoo.StockQuote.GetQuotes();
+            List<Tick> ticks = await this.StockQuoteProvider.GetQuotes();
 
             textTickRefresh.Text = DateTime.Now.ToString("h:mm M/d");
-
-            /*
-            if (ticks.Count > 2)
-            {
-                FormatTick(textTick1, ticks[0]);
-                FormatTick(textTick2, ticks[1]);
-                FormatTick(textTick3, ticks[2]);
-                FormatTick(textTick4, ticks[3]);
-                FormatTick(textTick5, ticks[4]);
-                FormatTick(textTick6, ticks[5]);
-                FormatTick(textTick7, ticks[6]);
-            }
-            */
 
             this.tickers.Clear();
             foreach (var t in ticks)
@@ -567,7 +597,7 @@ namespace FullScreenNews
             }
         }
 
-        private void FormatTick(TextBlock block, Yahoo.Tick tick)
+        private void FormatTick(TextBlock block, Tick tick)
         {
             double price = Double.Parse(tick.Price);
             double change = Double.Parse(tick.Change.Replace("%", ""));
@@ -637,86 +667,118 @@ namespace FullScreenNews
             }
         }
         
-        private async void PageTimer_Tick(object sender, object e)
+        private void PageTimer_Tick(object sender, object e)
         {
             TimeSpan span = DateTime.Now - startTime;
             textTime.Text = DateTime.Now.ToString("h:mm");
             textTimer.Text = DateTime.Now.ToString("dddd, MMMM d");
 
-            //await SearchAsync("top stories");
-
-            //pageTimer.Stop();
-            //Debug.WriteLine(span.Seconds);
-
             UpdateAlarmBar();
 
-            
-            if (first || (int)span.TotalSeconds % 3600 == 0)
+            int seconds = (int)span.TotalSeconds;
+
+            if (first || seconds % this.AppConfigurationLoader.Configuration.UpdateWeatherInterval == 0)
             {
-                List<WeatherResult> wr = await WeatherProvider.GetWeather();
-                if (wr != null && wr.Count > 6)
-                {
-                    textWeatherToday.Text = string.Format("{0}°", wr[0].Temp);
-                    imageWeatherToday.Width = WeatherProvider.TodayWeatherIconWidth;
-                    imageWeatherToday.Source = new BitmapImage(new Uri(wr[0].IconUrl));
-
-                    imageWeatherDay1.Width = WeatherProvider.ForcastWeatherIconWidth;
-                    imageWeatherDay2.Width = WeatherProvider.ForcastWeatherIconWidth;
-                    imageWeatherDay3.Width = WeatherProvider.ForcastWeatherIconWidth;
-                    imageWeatherDay4.Width = WeatherProvider.ForcastWeatherIconWidth;
-                    imageWeatherDay5.Width = WeatherProvider.ForcastWeatherIconWidth;
-
-                    imageWeatherDay1.Source = new BitmapImage(new Uri(wr[1].IconUrl));
-                    imageWeatherDay2.Source = new BitmapImage(new Uri(wr[2].IconUrl));
-                    imageWeatherDay3.Source = new BitmapImage(new Uri(wr[3].IconUrl));
-                    imageWeatherDay4.Source = new BitmapImage(new Uri(wr[4].IconUrl));
-                    imageWeatherDay5.Source = new BitmapImage(new Uri(wr[5].IconUrl));
-
-                    textWeatherDay1.Text = string.Format("{0}°", wr[1].Temp);
-                    textWeatherDay2.Text = string.Format("{0}°", wr[2].Temp);
-                    textWeatherDay3.Text = string.Format("{0}°", wr[3].Temp);
-                    textWeatherDay4.Text = string.Format("{0}°", wr[4].Temp);
-                    textWeatherDay5.Text = string.Format("{0}°", wr[5].Temp);
-                }
+                UpdateWeather();
             }
-            
 
-            
-            if (first || span.Seconds == 0)
+
+            if (first || seconds % this.AppConfigurationLoader.Configuration.UpdateStockInterval == 0)
             {
                 GetQotes();
             }
 
-            if (first || span.Seconds % 30 == 0)
+            if (first || this.AppConfigurationLoader.Configuration.UpdateFeedInterval == 0)
             {
-                if (!first)
-                {
-                    if (!skipNextArticle)
-                    {
-                        articles.MoveNext();
-                    }
-                    else
-                    {
-                        skipNextArticle = false;
-                    }
-                }
-
-                if ((!articles.HasArticle || span.Minutes % 30 == 0) && !articles.IsLoading)
-                {
-                    await articles.SearchAsync();
-                }
-
-                NewsArticle article = articles.Current;
-
-                if (article != null)
-                {
-                    ShowArticle(article);
-                }
+                GetNews();
             }
 
             if (first)
             {
                 first = false;
+            }
+        }
+
+        private async Task GetNews()
+        {
+            if (!first)
+            {
+                if (!skipNextArticle)
+                {
+                    NewsProvider.MoveNext();
+                }
+                else
+                {
+                    skipNextArticle = false;
+                }
+            }
+
+            if ((!NewsProvider.HasArticle || this.AppConfigurationLoader.Configuration.UpdateFeedSourcesInterval == 0) && !NewsProvider.IsLoading)
+            {
+                await NewsProvider.SearchAsync();
+            }
+
+            NewsArticle article = NewsProvider.Current;
+
+            if (article != null)
+            {
+                ShowArticle(article);
+            }
+        }
+
+        private async Task UpdateWeather()
+        {
+            this.Logger.Log("UpdateWeather", Category.Info, Priority.Low);
+
+            using (var scope = Container.BeginLifetimeScope())
+            {
+                var weatherProvider = scope.Resolve<IWeatherProvider>();
+                List<WeatherResult> wr = await weatherProvider.GetWeather();
+                if (wr != null && wr.Count >= 6)
+                {
+                    try
+                    {
+                        textWeatherToday.Text = string.Format("{0}°", wr[0].Temp);
+                        imageWeatherToday.Width = weatherProvider.TodayWeatherIconWidth;
+
+                        Uri uri = null;
+                        if (Uri.TryCreate(wr[0].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
+                        {
+                            imageWeatherToday.Source = new BitmapImage(uri);
+                        }
+
+                        imageWeatherDay1.Width = weatherProvider.ForcastWeatherIconWidth;
+                        imageWeatherDay2.Width = weatherProvider.ForcastWeatherIconWidth;
+                        imageWeatherDay3.Width = weatherProvider.ForcastWeatherIconWidth;
+                        imageWeatherDay4.Width = weatherProvider.ForcastWeatherIconWidth;
+                        imageWeatherDay5.Width = weatherProvider.ForcastWeatherIconWidth;
+
+                        if (Uri.TryCreate(wr[1].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
+                            imageWeatherDay1.Source = new BitmapImage(uri);
+                        if (Uri.TryCreate(wr[2].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
+                            imageWeatherDay2.Source = new BitmapImage(uri);
+                        if (Uri.TryCreate(wr[3].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
+                            imageWeatherDay3.Source = new BitmapImage(uri);
+                        if (Uri.TryCreate(wr[4].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
+                            imageWeatherDay4.Source = new BitmapImage(uri);
+                        if (Uri.TryCreate(wr[5].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
+                            imageWeatherDay5.Source = new BitmapImage(uri);
+
+                        textWeatherDay1.Text = string.Format("{0}°", wr[1].Temp);
+                        textWeatherDay2.Text = string.Format("{0}°", wr[2].Temp);
+                        textWeatherDay3.Text = string.Format("{0}°", wr[3].Temp);
+                        textWeatherDay4.Text = string.Format("{0}°", wr[4].Temp);
+                        textWeatherDay5.Text = string.Format("{0}°", wr[5].Temp);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log("UpdateWeather UX exception\n" + ex.ToString(), Category.Exception, Priority.High);
+                    }
+                }
+                else
+                {
+                    Logger.Log("Weather result is not expected. Count is " + wr.Count.ToString(), Category.Warn, Priority.Medium);
+                }
             }
         }
 
@@ -743,41 +805,22 @@ namespace FullScreenNews
                 article.Published,
                 article.Provider,
                 article.Refreshed,
-                articles.ArticleIndex);
+                NewsProvider.ArticleIndex);
             textInfo.Text = content;
         }
 
         private void buttonPrev_Click(object sender, RoutedEventArgs e)
         {
-            this.articles.MovePrevious();
+            this.NewsProvider.MovePrevious();
 
-            ShowArticle(this.articles.Current);
+            ShowArticle(this.NewsProvider.Current);
         }
 
         private void buttonNext_Click(object sender, RoutedEventArgs e)
         {
-            this.articles.MoveNext();
+            this.NewsProvider.MoveNext();
 
-            ShowArticle(this.articles.Current);
-        }
-
-        private async Task SearchAsync(string query)
-        {
-            var news = await BingSearchHelper.GetNewsSearchResults(query, count: 50, offset: 0, market: "en-US");
-
-            foreach (var article in news)
-            {
-                Uri uri = new Uri(article.ThumbnailUrl, UriKind.RelativeOrAbsolute);
-                ImageSource imgSource = new BitmapImage(uri);
-                //imgThumbnail.Width = article.Width;
-                //imgThumbnail.Height = article.Height;
-                imgThumbnail.Source = imgSource;
-
-                textTitle.Text = article.Title;
-                textDesc.Text = article.Description;
-
-                break;
-            }
+            ShowArticle(this.NewsProvider.Current);
         }
     }
 }

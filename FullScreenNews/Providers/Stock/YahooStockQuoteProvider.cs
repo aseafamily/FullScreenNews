@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FullScreenNews.Logging;
+using FullScreenNews.Settings;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -6,19 +8,31 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace FullScreenNews.Yahoo
+namespace FullScreenNews.Providers.Stock
 {
     // http://finance.yahoo.com/d/quotes.csv?s=MSFT+GOOG&f=snl1t1p2&e=.csv
-    public class StockQuote
+    public class YahooStockQuoteProvider : BaseProvider, IStockQuoteProvider
     {
         private static string QuotesUrlFormat = "http://finance.yahoo.com/d/quotes.csv?s={0}&f=snl1t1p2&e=.csv";
 
-        public static async Task<List<Tick>> GetQuotes()
+        private string[] StockSymbols;
+
+        public YahooStockQuoteProvider(ILoggerFacade logger, IAppConfigurationLoader appConfigurationLoader)
+            : base(logger, appConfigurationLoader)
+        {
+            Logger.LogType<YahooStockQuoteProvider>();
+            this.StockSymbols = appConfigurationLoader.Configuration.StockSymbols;
+        }
+
+        public async Task<List<Tick>> GetQuotes()
         {
             HttpClient client = new HttpClient();
 
-            string ticks = "SPY+MSFT+NGD+TWTR+TSLA+SCTY+GOOG";
+            //string ticks = "SPY+MSFT+NGD+TWTR+TSLA+SCTY+GOOG";
+            string ticks = string.Join("+", this.StockSymbols);
             string url = string.Format(QuotesUrlFormat, ticks);
+
+            Logger.Log("Request URL is: " + url, Category.Debug, Priority.Low);
 
             List<Tick> tickList = new List<Tick>();
 
@@ -48,25 +62,6 @@ namespace FullScreenNews.Yahoo
 
 
             return tickList;
-        }
-    }
-
-    public class Tick
-    {
-        public string Symbol { get; set; }
-        public string Price { get; set; }
-        public string Change { get; set;  }
-        public bool IsUp
-        {
-            get
-            {
-                if (!string.IsNullOrWhiteSpace(Change))
-                {
-                    return Change.ToCharArray()[0] != '-';
-                }
-
-                return false;
-            }
         }
     }
 }

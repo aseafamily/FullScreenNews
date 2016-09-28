@@ -44,8 +44,8 @@
                     <TextBlock x:Name="textTime" HorizontalAlignment="Left" Margin="20,-9,0,0" TextWrapping="Wrap" Text="12:00" FontSize="72" Width="174" Foreground="#FFF7F6F6" VerticalAlignment="Top"/>
                     <TextBlock x:Name="textTimer" HorizontalAlignment="Left" Margin="20,77,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" FontSize="24" Foreground="#FFF7F6F6" />
                     <TextBlock x:Name="textChinaDate" HorizontalAlignment="Left" Margin="20,113,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" FontSize="15" Foreground="#FFF7F6F6" />
-                    <Image x:Name="imageWeatherToday" HorizontalAlignment="Left" Height="70" Margin="190,15,0,0" VerticalAlignment="Top" Width="70" Opacity="0.8"/>
-                    <TextBlock x:Name="textWeatherToday" HorizontalAlignment="Left" Margin="257,34,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" FontSize="24" Width="40" Foreground="#FFF7F6F6" Height="32"/>
+                    <Image x:Name="imageWeatherToday" HorizontalAlignment="Left" Height="70" Margin="196,15,0,0" VerticalAlignment="Top" Width="70" Opacity="0.8"/>
+                    <TextBlock x:Name="textWeatherToday" HorizontalAlignment="Left" Margin="259,34,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" FontSize="24" Width="40" Foreground="#FFF7F6F6" Height="32"/>
                     <Image x:Name="imageWeatherDay1" HorizontalAlignment="Left" Height="50" Margin="20,138,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
                     <Image x:Name="imageWeatherDay2" HorizontalAlignment="Left" Height="50" Margin="79,138,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
                     <Image x:Name="imageWeatherDay3" HorizontalAlignment="Left" Height="50" Margin="134,138,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
@@ -64,14 +64,14 @@
                         <RowDefinition Height="100" />
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
-                        <local:Clock
-                        TimeZoneId="China Standard Time" Height="70" Width="70" Margin="15,10,15,20"></local:Clock>
-                        <TextBlock Text="Beijing" HorizontalAlignment="Center" Foreground="#FFEEE7E7" VerticalAlignment="Bottom"/>
+                        <local:Clock x:Name="WorldClock1"
+                        TimeZoneId="" Height="70" Width="70" Margin="15,10,15,0" VerticalAlignment="Top"></local:Clock>
+                        <TextBlock x:Name="WorldClock1Name" Text="" HorizontalAlignment="Center" Foreground="#FFEEE7E7" VerticalAlignment="Bottom"/>
                     </Grid>
                     <Grid Grid.Row="2">
-                        <local:Clock
-                        TimeZoneId="Greenwich Standard Time" Height="70" Width="70" Margin="15,10,15,20"></local:Clock>
-                        <TextBlock Text="Greenwich" HorizontalAlignment="Center" Foreground="#FFEEE7E7" VerticalAlignment="Bottom"/>
+                        <local:Clock x:Name="WorldClock2"
+                        TimeZoneId="" Height="70" Width="70" Margin="15,10,15,20"></local:Clock>
+                        <TextBlock x:Name="WorldClock2Name" Text="" HorizontalAlignment="Center" Foreground="#FFEEE7E7" VerticalAlignment="Bottom"/>
                     </Grid>
                 </Grid>
 
@@ -134,7 +134,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <WebView HorizontalAlignment="Left" Grid.Row="1" Margin="0,-5,0,0" VerticalAlignment="Top" Width="350" Height="2000" Source="http://aseafamily.azurewebsites.net/ticker.aspx?l=https://twitter.com/alexmajin/lists/everyday" />
+            <WebView x:Name="TwitterList" HorizontalAlignment="Left" Grid.Row="1" Margin="0,-5,0,0" VerticalAlignment="Top" Width="350" Height="2000" Source="" />
         </Grid>
 
 
