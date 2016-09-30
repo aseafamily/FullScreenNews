@@ -187,16 +187,22 @@ namespace FullScreenNews
         private void SetHoursAndMinutes()
         {
             DateTimeOffset localTime = DateTimeOffset.Now;
-            DateTimeOffset targetTime;
+            DateTimeOffset targetTime = localTime;
 
             if (!string.IsNullOrEmpty(this.TimeZoneId))
             {
-                TimeZoneInfo hwZone = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
-                targetTime = TimeZoneInfo.ConvertTime(localTime, hwZone);
-            }
-            else
-            {
-                targetTime = localTime;
+                try
+                {
+                    TimeZoneInfo hwZone = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
+
+                    if (hwZone != null)
+                    {
+                        targetTime = TimeZoneInfo.ConvertTime(localTime, hwZone);
+                    }
+                }
+                catch(Exception)
+                {
+                }
             }
 
             _hourhand.RotationAngleInDegrees = (float)targetTime.TimeOfDay.TotalHours * 30;

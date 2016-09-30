@@ -29,5 +29,15 @@ namespace FullScreenNews.Settings
 
             Logger.Log(Environment.NewLine + JsonHelper.FormatJson(json), Category.Info, Priority.Medium);
         }
+
+        public Task Load()
+        {
+            return null; 
+        }
+
+        public Task<bool> Save()
+        {
+            return null;
+        }
     }
 }

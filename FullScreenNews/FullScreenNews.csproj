@@ -89,6 +89,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
+    <Content Include="Assets\DefaultConfiguration.json" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -121,10 +122,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\Weather\IWeatherProvider.cs" />
     <Compile Include="Providers\Weather\WeatherResult.cs" />
+    <Compile Include="SettingsContentDialog.xaml.cs">
+      <DependentUpon>SettingsContentDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Settings\AppConfiguration.cs" />
     <Compile Include="Settings\IAppConfigurationLoader.cs" />
     <Compile Include="Settings\InitSettings.cs" />
     <Compile Include="Settings\JsonHelper.cs" />
+    <Compile Include="Settings\LocalAppConfigurationLoader.cs" />
     <Compile Include="Settings\SimpleAppConfigurationLoader.cs" />
     <Compile Include="Providers\Stock\YahooStockQuoteProvider.cs" />
   </ItemGroup>
@@ -163,6 +168,14 @@
     <Page Include="MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SettingsContentDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\Styles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>

@@ -9,5 +9,9 @@ namespace FullScreenNews.Settings
     public interface IAppConfigurationLoader
     {
         AppConfiguration Configuration { get; set; }
+
+        Task Load();
+
+        Task<bool> Save();
     }
 }

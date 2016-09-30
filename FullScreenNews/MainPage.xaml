@@ -27,9 +27,26 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <Image x:Name="imgLocal" Grid.Row="0" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0"></Image>
-                <TextBlock x:Name="textImg" HorizontalAlignment="Right" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Bottom" Height="40" FontSize="24" Foreground="#FFFDF8F8" Margin="10,0,20,0"/>
+                <TextBlock x:Name="textImg" HorizontalAlignment="Right" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Bottom" Height="40" FontSize="24" Foreground="#FFFDF8F8" Margin="10,0,40,-5"/>
                 <WebView x:Name="webVideo" Source="" Visibility="Collapsed"/>
-                <MediaElement x:Name="localVideo" Width="400" Height="400" Tapped="localVideo_Tapped"></MediaElement>
+                <MediaElement x:Name="localVideo" Width="400" Height="400" Tapped="localVideo_Tapped" MediaEnded="localVideo_MediaEnded"></MediaElement>
+
+                <Button Background="#FF293133" Opacity="0.9" FontSize="10" FontWeight="Bold" Foreground="#FFFBF8F8" Margin="0,0,0,0" Height="30" Width="30" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                    <Button.Content>
+                        <TextBlock FontSize="20" FontWeight="Bold" Foreground="#FFFBF8F8" Margin="0" Text="&#xE700;" FontFamily="{ThemeResource SymbolThemeFontFamily}"></TextBlock>
+                    </Button.Content>
+                    <Button.Flyout>
+                        <MenuFlyout x:Name="menuFlyout" Opened="menuFlyout_Opened">
+                            <!--
+                                <ToggleMenuFlyoutItem x:Name="itemContentNone" Text="None" Click="option_Click" Tag="0" />
+                                <ToggleMenuFlyoutItem x:Name="itemContentPhoto" Text="Photo Slide Show" Click="option_Click" Tag="1" />
+                                <ToggleMenuFlyoutItem x:Name="itemContentVideo" Text="Video" Click="option_Click" Tag="2" />
+                                <MenuFlyoutSeparator/>
+                                <MenuFlyoutItem Text="Configuration" Click="option_Click" Tag="10" />
+                                -->
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
             </Grid>
 
             <Grid x:Name="gridAlarm" VerticalAlignment="Bottom" Height="2" Background="Green" Opacity="0.9" Margin="0,0,2000,0"></Grid>
@@ -39,8 +56,8 @@
                     <ColumnDefinition Width="320" />
                     <ColumnDefinition Width="100" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="200" />
-                    <ColumnDefinition Width="15" />
+                    <ColumnDefinition Width="184" />
+                    <ColumnDefinition Width="16"/>
                 </Grid.ColumnDefinitions>
 
                 <Grid Grid.Column="0">
@@ -100,14 +117,14 @@
                         <TextBlock x:Name="textInfo" Grid.Row="1" HorizontalAlignment="Right" Margin="0,11,0,0" TextWrapping="Wrap" Text="" FontSize="12" Foreground="#FFD6CECE"/>
                     </Grid>
                 </Grid>
-                <Grid Grid.Column="3">
+                <Grid Grid.Column="3" Grid.ColumnSpan="2">
                     <GridView ItemsSource="{x:Bind tickers}" Margin="10,10,5,20">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="local:Ticker">
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <TextBlock Text="{x:Bind Symbol}" Foreground="#FFF9F6F6" FontWeight="Bold" Width="60"></TextBlock>
-                                    <TextBlock Text="{x:Bind Price}" Foreground="#FFF9F6F6" FontWeight="Bold" Width="60" HorizontalAlignment="Right"></TextBlock>
-                                    <TextBlock Text="{x:Bind Up}" Foreground="{x:Bind Color}" FontWeight="Bold" Width="60" HorizontalAlignment="Right"></TextBlock>
+                                    <TextBlock Text="{x:Bind Symbol}" Foreground="#FFF9F6F6" FontWeight="Bold" Width="50"></TextBlock>
+                                    <TextBlock Text="{x:Bind Price}" Foreground="#FFF9F6F6" FontWeight="Bold" Width="60" HorizontalAlignment="Right" TextAlignment="Right"></TextBlock>
+                                    <TextBlock Text="{x:Bind Up}" Foreground="{x:Bind Color}" FontWeight="Bold" Width="60" HorizontalAlignment="Right" TextAlignment="Right"></TextBlock>
                                 </StackPanel>
                             </DataTemplate>
                         </GridView.ItemTemplate>
@@ -120,24 +137,6 @@
 
                     <TextBlock x:Name="textTickRefresh" HorizontalAlignment="Right" Margin="20,179,30,3" TextWrapping="Wrap" Text="Refreshed:" FontSize="12" Foreground="#FFD6CECE"/>
                 </Grid>
-                <Grid Grid.Column="4">
-                    <Button FontSize="10" FontWeight="Bold" Foreground="#FFFBF8F8" Margin="0,0,0,145" Height="91">
-                        <Button.Content>
-                            <TextBlock FontSize="15" FontWeight="Bold" Foreground="#FFFBF8F8" Margin="-5,-35,0,-30" Width="15">.<LineBreak/>.<LineBreak/>.</TextBlock>
-                        </Button.Content>
-                        <Button.Flyout>
-                            <MenuFlyout x:Name="menuFlyout" Opened="menuFlyout_Opened">
-                                <!--
-                                <ToggleMenuFlyoutItem x:Name="itemContentNone" Text="None" Click="option_Click" Tag="0" />
-                                <ToggleMenuFlyoutItem x:Name="itemContentPhoto" Text="Photo Slide Show" Click="option_Click" Tag="1" />
-                                <ToggleMenuFlyoutItem x:Name="itemContentVideo" Text="Video" Click="option_Click" Tag="2" />
-                                <MenuFlyoutSeparator/>
-                                <MenuFlyoutItem Text="Configuration" Click="option_Click" Tag="10" />
-                                -->
-                            </MenuFlyout>
-                        </Button.Flyout>
-                    </Button>
-                </Grid>
             </Grid>
         </Grid>
 
@@ -146,7 +145,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <WebView x:Name="TwitterList" HorizontalAlignment="Left" Grid.Row="1" Margin="0,-5,0,0" VerticalAlignment="Top" Width="350" Height="2000" Source="" />
+            <WebView x:Name="TwitterList" HorizontalAlignment="Left" Grid.Row="1" Margin="0,-5,0,0" VerticalAlignment="Top" Width="350" Height="2000" Source="" NewWindowRequested="TwitterList_NewWindowRequested" />
         </Grid>
 
 

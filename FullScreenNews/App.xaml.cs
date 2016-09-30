@@ -82,9 +82,13 @@ namespace FullScreenNews
         private void ConfigureContainer(ContainerBuilder builder)
         {
             builder.RegisterType<MetroLogger>().As<ILoggerFacade>();
-            builder.RegisterType<SimpleAppConfigurationLoader>().As<IAppConfigurationLoader>().SingleInstance();
-            builder.RegisterType<NationalWeatherProvider>().As<IWeatherProvider>();
-            //builder.RegisterType<OpenWeatherProvider>().As<IWeatherProvider>();
+
+            //builder.RegisterType<SimpleAppConfigurationLoader>().As<IAppConfigurationLoader>().SingleInstance();
+            builder.RegisterType<LocalAppConfigurationLoader>().As<IAppConfigurationLoader>().SingleInstance();
+
+            //builder.RegisterType<NationalWeatherProvider>().As<IWeatherProvider>();
+            builder.RegisterType<OpenWeatherProvider>().As<IWeatherProvider>();
+
             builder.RegisterType<FeedNewsProvider>().As<INewsProvider>();
             builder.RegisterType<YahooStockQuoteProvider>().As<IStockQuoteProvider>();
         }

@@ -59,7 +59,11 @@ namespace FullScreenNews
         Photo = 1,
         LocalVideo = 2,
         OnlineVideoBase = 3,
-        Configuration = 100
+        Configuration = 100,
+        AlarmBase = 200,
+        AlarmBase30 = 230,
+        AlarmBase45 = 245,
+        AlarmBase60 = 260
     }
 
     /// <summary>
@@ -108,6 +112,10 @@ namespace FullScreenNews
 
         private bool skipNextArticle = false;
 
+        private int alarmMinutes = 0;
+
+        private MenuFlyoutSubItem alarmSubMenu;
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -125,7 +133,7 @@ namespace FullScreenNews
             //displayRequest.RequestRelease(); //to release request of keep display on
         }
 
-        public void OnInitialized(IContainer container)
+        public async void OnInitialized(IContainer container)
         {
             Container = container;
 
@@ -135,32 +143,17 @@ namespace FullScreenNews
             Logger.Log("MainPage OnOnInitialized", Category.Debug, Priority.Low);
 
             this.AppConfigurationLoader = container.Resolve<IAppConfigurationLoader>();
+            await this.AppConfigurationLoader.Load();
+
             this.NewsProvider = container.Resolve<INewsProvider>();
             this.StockQuoteProvider = container.Resolve<IStockQuoteProvider>();
 
-            DateTimeOffset localTime = DateTimeOffset.Now;
+            LoadResourcesFromConfiguration();
 
-            if (this.AppConfigurationLoader.Configuration.ShowChineseCalendar)
-            {
-                TimeZoneInfo hwZone = TimeZoneInfo.FindSystemTimeZoneById("China Standard Time");
-                DateTimeOffset targetTime = TimeZoneInfo.ConvertTime(localTime, hwZone);
-                textChinaDate.Text = ChinaDate.GetChinaDate(targetTime.DateTime);
-            }
+            // save time
+            SetImageFromLibrary();
 
-            TwitterList.Source = new Uri(string.Format(
-                "http://aseafamily.azurewebsites.net/ticker.aspx?l={0}",
-                this.AppConfigurationLoader.Configuration.TwitterListUrl));
-
-            WorldClock1Name.Text = this.AppConfigurationLoader.Configuration.WorldClock1Name;
-            WorldClock1.TimeZoneId = this.AppConfigurationLoader.Configuration.WorldClock1Timezone;
-            WorldClock2Name.Text = this.AppConfigurationLoader.Configuration.WorldClock2Name;
-            WorldClock2.TimeZoneId = this.AppConfigurationLoader.Configuration.WorldClock2Timezone;
-
-            // set up popup menu
-            SetupMenus();
-
-            tickers = new ObservableCollection<FullScreenNews.Ticker>();
-
+            // UI initialize
             // swipe
             this.NavigationCacheMode = NavigationCacheMode.Required;
             ManipulationMode = ManipulationModes.TranslateRailsX | ManipulationModes.TranslateRailsY;
@@ -190,32 +183,20 @@ namespace FullScreenNews
                 pageTimer.Start();
             };
 
-            startTime = DateTime.Now;
-            alarmStartTime = startTime;
-
-            pageTimer = new DispatcherTimer();
-            pageTimer.Tick += PageTimer_Tick;
-            pageTimer.Interval = new TimeSpan(0, 0, 1);
-            pageTimer.Start();
-
-            SetBackgroundFromBing();
-
-            this.imgLocal.Visibility = Visibility.Collapsed;
-            this.gridLocalImage.Background = null;
-            this.gridLocalImage.Opacity = 1;
-
-            pictureTimer = new DispatcherTimer();
-            pictureTimer.Tick += PictureTimer_Tick;
-            pictureTimer.Interval = new TimeSpan(0, 0, this.AppConfigurationLoader.Configuration.UpdatePhotoInterval);
-
-            // save time
-            SetImageFromLibrary();
-
             this.textTitle.DoubleTapped += (s, e) =>
             {
                 if (this.NewsProvider.Current != null)
                 {
-                    this.Frame.Navigate(typeof(InternalBrowser), NewsProvider.Current.Url);
+                    //this.Frame.Navigate(typeof(InternalBrowser), NewsProvider.Current.Url);
+                    this.imgLocal.Visibility = Visibility.Collapsed;
+                    this.textImg.Visibility = Visibility.Collapsed;
+                    this.pictureTimer.Stop();
+
+                    this.localVideo.Visibility = Visibility.Collapsed;
+                    this.localVideo.Stop();
+
+                    this.webVideo.Visibility = Visibility.Visible;
+                    this.webVideo.Source = new Uri(NewsProvider.Current.Url);
                 }
             };
 
@@ -316,6 +297,59 @@ namespace FullScreenNews
             };
         }
 
+        private void LoadResourcesFromConfiguration()
+        {
+            DateTimeOffset localTime = DateTimeOffset.Now;
+
+            if (this.AppConfigurationLoader.Configuration.ShowChineseCalendar)
+            {
+                TimeZoneInfo hwZone = TimeZoneInfo.FindSystemTimeZoneById("China Standard Time");
+                DateTimeOffset targetTime = TimeZoneInfo.ConvertTime(localTime, hwZone);
+                textChinaDate.Text = ChinaDate.GetChinaDate(targetTime.DateTime);
+            }
+            else
+            {
+                textChinaDate.Text = string.Empty;
+            }
+
+            TwitterList.Source = new Uri(string.Format(
+                "http://aseafamily.azurewebsites.net/ticker.aspx?l={0}",
+                this.AppConfigurationLoader.Configuration.TwitterListUrl));
+
+            WorldClock1Name.Text = this.AppConfigurationLoader.Configuration.WorldClock1Name;
+            WorldClock1.TimeZoneId = this.AppConfigurationLoader.Configuration.WorldClock1Timezone;
+            WorldClock2Name.Text = this.AppConfigurationLoader.Configuration.WorldClock2Name;
+            WorldClock2.TimeZoneId = this.AppConfigurationLoader.Configuration.WorldClock2Timezone;
+
+            alarmMinutes = this.AppConfigurationLoader.Configuration.Alarminterval / 60;
+
+            // set up popup menu
+            SetupMenus();
+
+            tickers = new ObservableCollection<FullScreenNews.Ticker>();
+
+            startTime = DateTime.Now;
+            alarmStartTime = startTime;
+
+            pageTimer = new DispatcherTimer();
+            pageTimer.Tick += PageTimer_Tick;
+            pageTimer.Interval = new TimeSpan(0, 0, 1);
+
+            this.first = true;
+
+            pageTimer.Start();
+
+            SetBackgroundFromBing();
+
+            this.imgLocal.Visibility = Visibility.Collapsed;
+            this.gridLocalImage.Background = null;
+            this.gridLocalImage.Opacity = 1;
+
+            pictureTimer = new DispatcherTimer();
+            pictureTimer.Tick += PictureTimer_Tick;
+            pictureTimer.Interval = new TimeSpan(0, 0, this.AppConfigurationLoader.Configuration.UpdatePhotoInterval);
+        }
+
         private void SetupMenus()
         {
             this.menuFlyout.Items.Clear();
@@ -354,8 +388,39 @@ namespace FullScreenNews
 
             this.menuFlyout.Items.Add(new MenuFlyoutSeparator());
 
+            alarmSubMenu = new MenuFlyoutSubItem();
+            alarmSubMenu.Text = "Quick alarm intervals";
+
+            this.menuFlyout.Items.Add(alarmSubMenu);
+
+            item = new ToggleMenuFlyoutItem();
+            item.Text = "0";
+            item.Tag = ContentItem.AlarmBase;
+            item.Click += option_Click;
+            alarmSubMenu.Items.Add(item);
+
+            item = new ToggleMenuFlyoutItem();
+            item.Text = "30";
+            item.Tag = ContentItem.AlarmBase30;
+            item.Click += option_Click;
+            alarmSubMenu.Items.Add(item);
+
+            item = new ToggleMenuFlyoutItem();
+            item.Text = "45";
+            item.Tag = ContentItem.AlarmBase45;
+            item.Click += option_Click;
+            alarmSubMenu.Items.Add(item);
+
+            item = new ToggleMenuFlyoutItem();
+            item.Text = "60";
+            item.Tag = ContentItem.AlarmBase60;
+            item.Click += option_Click;
+            alarmSubMenu.Items.Add(item);
+
+            this.menuFlyout.Items.Add(new MenuFlyoutSeparator());
+
             item = new MenuFlyoutItem();
-            item.Text = "Configuration";
+            item.Text = "Settings";
             item.Tag = ContentItem.Configuration;
             item.Click += option_Click;
 
@@ -732,7 +797,13 @@ namespace FullScreenNews
 
         private async Task UpdateAlarmBar()
         {
-            const int alarmSeconds = (int)(45 * 60);
+            if (this.alarmMinutes == 0)
+            {
+                gridAlarm.Margin = new Thickness(0, 0, gridLocalImage.RenderSize.Width, 0);
+                return;
+            }
+
+            int alarmSeconds = (int)(this.alarmMinutes * 60);
 
             TimeSpan span = DateTime.Now - alarmStartTime;
             if (span.TotalSeconds < alarmSeconds)
@@ -782,6 +853,13 @@ namespace FullScreenNews
             UpdateAlarmBar();
 
             int seconds = (int)span.TotalSeconds;
+
+            /*
+            if (first || seconds % 10 == 0)
+            {
+                Windows.UI.Xaml.Window.Current.CoreWindow.PointerCursor = null;
+            }
+            */
 
             if (first || seconds % this.AppConfigurationLoader.Configuration.UpdateWeatherInterval == 0)
             {
@@ -943,7 +1021,7 @@ namespace FullScreenNews
             }
         }
 
-        private async void option_Click(object sender, RoutedEventArgs e)
+        private void option_Click(object sender, RoutedEventArgs e)
         {
             MenuFlyoutItem item = sender as MenuFlyoutItem;
             if (item != null)
@@ -952,6 +1030,7 @@ namespace FullScreenNews
             }
 
             var tag = item.Tag;
+            bool isSubMenu = false;
 
             ContentItem contentItem;
             if (Enum.TryParse<ContentItem>(tag.ToString(), out contentItem))
@@ -970,6 +1049,14 @@ namespace FullScreenNews
                     case ContentItem.OnlineVideoBase:
                         break;
                     case ContentItem.Configuration:
+                        OpenSettingsDialog();
+                        break;
+                    case ContentItem.AlarmBase:
+                    case ContentItem.AlarmBase30:
+                    case ContentItem.AlarmBase45:
+                    case ContentItem.AlarmBase60:
+                        isSubMenu = true;
+                        SetAlarm(contentItem);
                         break;
                     default:
                         break;
@@ -983,7 +1070,17 @@ namespace FullScreenNews
 
             if (item is ToggleMenuFlyoutItem)
             {
-                foreach (var t in this.menuFlyout.Items)
+                IList<MenuFlyoutItemBase> items = null;
+                if (isSubMenu)
+                {
+                    items = alarmSubMenu.Items;
+                }
+                else
+                {
+                    items = this.menuFlyout.Items;
+                }
+                
+                foreach (var t in items)
                 {
                     if (t is ToggleMenuFlyoutItem)
                     {
@@ -995,6 +1092,24 @@ namespace FullScreenNews
             }
         }
 
+        private async void OpenSettingsDialog()
+        {
+            SettingsContentDialog settingsDialog = new SettingsContentDialog(this.Container);
+            await settingsDialog.ShowAsync();
+
+            if (settingsDialog.Result == SaveResult.SaveOK)
+            {
+                // Reload
+                LoadResourcesFromConfiguration();
+            }
+        }
+
+        private void SetAlarm(ContentItem contentItem)
+        {
+            this.alarmStartTime = DateTime.Now;
+            this.alarmMinutes = (int)contentItem - (int)ContentItem.AlarmBase;
+        }
+
         private void PlayNone()
         {
             Logger.Log("PlayNone", Category.Debug, Priority.Low);
@@ -1003,6 +1118,7 @@ namespace FullScreenNews
             this.gridLocalImage.Background = null;
             this.gridLocalImage.Opacity = 1;
             this.textImg.Text = bingImageText;
+            this.textImg.Visibility = Visibility.Visible;
 
             this.webVideo.Visibility = Visibility.Collapsed;
             this.webVideo.Source = new Uri("about:blank");
@@ -1025,6 +1141,7 @@ namespace FullScreenNews
             this.gridLocalImage.Background = new SolidColorBrush(Color.FromArgb(255, 10, 10, 10));
             this.gridLocalImage.Opacity = 0.9;
             this.textImg.Text = string.Empty;
+            this.textImg.Visibility = Visibility.Visible;
 
             SetImageFromLibrary();
             pictureTimer.Start();
@@ -1037,6 +1154,7 @@ namespace FullScreenNews
             if (source.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             {
                 this.imgLocal.Visibility = Visibility.Collapsed;
+                this.textImg.Visibility = Visibility.Collapsed;
                 this.pictureTimer.Stop();
 
                 this.localVideo.Visibility = Visibility.Collapsed;
@@ -1047,14 +1165,35 @@ namespace FullScreenNews
             }
         }
 
+        private void localVideo_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            localVideo.Position = TimeSpan.Zero;
+            localVideo.Play();
+        }
+
+        private void TwitterList_NewWindowRequested(WebView sender, WebViewNewWindowRequestedEventArgs args)
+        {
+            this.imgLocal.Visibility = Visibility.Collapsed;
+            this.textImg.Visibility = Visibility.Collapsed;
+            this.pictureTimer.Stop();
+
+            this.localVideo.Visibility = Visibility.Collapsed;
+            this.localVideo.Stop();
+
+            this.webVideo.Visibility = Visibility.Visible;
+            this.webVideo.Source = args.Uri;
+            args.Handled = true; // Prevent the browser from being launched.
+        }
+
         private async Task PlayLocalVideo()
         {
             Logger.Log("PlayLocalVideo", Category.Debug, Priority.Low);
 
             this.imgLocal.Visibility = Visibility.Collapsed;
+            this.textImg.Visibility = Visibility.Collapsed;
             this.pictureTimer.Stop();
-            this.gridLocalImage.Background = null;
-            this.gridLocalImage.Opacity = 1;
+            this.gridLocalImage.Background = new SolidColorBrush(Color.FromArgb(255, 10, 10, 10));
+            this.gridLocalImage.Opacity = 0.9;
 
             this.webVideo.Visibility = Visibility.Collapsed;
             this.webVideo.Source = new Uri("about:blank");

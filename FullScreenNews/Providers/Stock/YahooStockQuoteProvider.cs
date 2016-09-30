@@ -15,21 +15,22 @@ namespace FullScreenNews.Providers.Stock
     {
         private static string QuotesUrlFormat = "http://finance.yahoo.com/d/quotes.csv?s={0}&f=snl1t1p2&e=.csv";
 
-        private string[] StockSymbols;
+        private IAppConfigurationLoader AppConfigurationLoader;
 
         public YahooStockQuoteProvider(ILoggerFacade logger, IAppConfigurationLoader appConfigurationLoader)
             : base(logger, appConfigurationLoader)
         {
             Logger.LogType<YahooStockQuoteProvider>();
-            this.StockSymbols = appConfigurationLoader.Configuration.StockSymbols;
+            this.AppConfigurationLoader = appConfigurationLoader;
         }
 
         public async Task<List<Tick>> GetQuotes()
         {
             HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19");
 
             //string ticks = "SPY+MSFT+NGD+TWTR+TSLA+SCTY+GOOG";
-            string ticks = string.Join("+", this.StockSymbols);
+            string ticks = string.Join("+", this.AppConfigurationLoader.Configuration.StockSymbols);
             string url = string.Format(QuotesUrlFormat, ticks);
 
             Logger.Log("Request URL is: " + url, Category.Debug, Priority.Low);
