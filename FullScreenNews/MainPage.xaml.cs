@@ -37,6 +37,9 @@ using FullScreenNews.Providers.News;
 using FullScreenNews.Logging;
 using FullScreenNews.Settings;
 using FullScreenNews.Providers.Stock;
+using System.Text.RegularExpressions;
+using Windows.Graphics.Display;
+using Windows.System.Profile;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -116,6 +119,8 @@ namespace FullScreenNews
 
         private MenuFlyoutSubItem alarmSubMenu;
 
+        private bool AccessOnline = true;
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -131,6 +136,11 @@ namespace FullScreenNews
             displayRequest = new DisplayRequest();
             displayRequest.RequestActive(); //to request keep display on
             //displayRequest.RequestRelease(); //to release request of keep display on
+
+            if (UIViewSettings.GetForCurrentView().UserInteractionMode == UserInteractionMode.Touch)
+            {
+                this.TwitterList.Visibility = Visibility.Collapsed;
+            }
         }
 
         public async void OnInitialized(IContainer container)
@@ -313,8 +323,10 @@ namespace FullScreenNews
             }
 
             TwitterList.Source = new Uri(string.Format(
-                "http://aseafamily.azurewebsites.net/ticker.aspx?l={0}",
-                this.AppConfigurationLoader.Configuration.TwitterListUrl));
+                    "http://bluehousemall.azurewebsites.net/liveframe/ticker.aspx?l={0}",
+                    this.AppConfigurationLoader.Configuration.TwitterListUrl));
+
+            gridWorldClock.Visibility = Visibility.Visible;
 
             WorldClock1Name.Text = this.AppConfigurationLoader.Configuration.WorldClock1Name;
             WorldClock1.TimeZoneId = this.AppConfigurationLoader.Configuration.WorldClock1Timezone;
@@ -323,10 +335,10 @@ namespace FullScreenNews
 
             alarmMinutes = this.AppConfigurationLoader.Configuration.Alarminterval / 60;
 
+            tickers = new ObservableCollection<FullScreenNews.Ticker>();
+
             // set up popup menu
             SetupMenus();
-
-            tickers = new ObservableCollection<FullScreenNews.Ticker>();
 
             startTime = DateTime.Now;
             alarmStartTime = startTime;
@@ -348,6 +360,38 @@ namespace FullScreenNews
             pictureTimer = new DispatcherTimer();
             pictureTimer.Tick += PictureTimer_Tick;
             pictureTimer.Interval = new TimeSpan(0, 0, this.AppConfigurationLoader.Configuration.UpdatePhotoInterval);
+        }
+
+        private async void GetTitle(string url, MenuFlyoutItem item)
+        {
+            HttpClient hc = new HttpClient();
+            HttpResponseMessage response = await hc.GetAsync(new Uri(url, UriKind.Absolute), HttpCompletionOption.ResponseHeadersRead);
+
+            string page = await response.Content.ReadAsStringAsync();
+
+            Regex ex = new Regex(@"<title>[\s\S]*?<\/title>", RegexOptions.IgnoreCase);
+            string title = ex.Match(page).Value.Trim();
+            title = title.Replace("<title>", string.Empty);
+            title = title.Replace("</title>", string.Empty);
+
+            if (string.IsNullOrEmpty(title))
+            {
+                title = url.Replace("http://", "");
+            }
+
+            const int length = 30;
+
+            if (url.Contains("youtube"))
+            {
+                title = "Youtube - " + title;
+            }
+
+            if (title.Length > length - 3)
+            {
+                title = title.Substring(0, length) + " ...";
+            }
+
+            item.Text = title;
         }
 
         private void SetupMenus()
@@ -384,6 +428,8 @@ namespace FullScreenNews
                 item.Click += option_Click;
 
                 this.menuFlyout.Items.Add(item);
+
+                GetTitle(this.AppConfigurationLoader.Configuration.VideoChannels[i], item);
             }
 
             this.menuFlyout.Items.Add(new MenuFlyoutSeparator());
@@ -541,7 +587,10 @@ namespace FullScreenNews
                 photoIndex = 0;
             }
 
-            await DisplayPhoto();
+            if (this.imgLocal.Visibility == Visibility.Visible)
+            {
+                await DisplayPhoto();
+            }
         }
 
         private async Task DisplayPhoto()
@@ -599,6 +648,17 @@ namespace FullScreenNews
                 dateString = string.Empty;
             }
             textImg.Text = dateString;
+
+            if (!string.IsNullOrEmpty(props.CameraModel))
+            {
+                string camera = props.CameraModel;
+                
+                if (!string.IsNullOrEmpty(camera))
+                {
+                    dateString = camera + " - " + dateString;
+                    textImg.Text = dateString;
+                }
+            }
 
             if (string.IsNullOrEmpty(props.Title))
             {

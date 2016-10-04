@@ -18,6 +18,8 @@ namespace FullScreenNews.Settings
 
         private ILoggerFacade Logger { get; set; }
 
+        private bool clearLocal = false;
+
         public LocalAppConfigurationLoader(ILoggerFacade logger)
         {
             Logger = logger;
@@ -29,7 +31,7 @@ namespace FullScreenNews.Settings
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile file = await localFolder.TryGetItemAsync(FileName) as StorageFile;
 
-            if (file == null)
+            if (file == null || clearLocal)
             {
                 // Get from default place
                 Windows.Storage.StorageFolder folder = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFolderAsync("Assets");
@@ -38,7 +40,7 @@ namespace FullScreenNews.Settings
                 Logger.Log("Get default app configuration: " + file.Path, Category.Debug, Priority.Low);
 
                 // save it to local folder
-                await file.CopyAsync(localFolder);
+                await file.CopyAsync(localFolder, FileName, NameCollisionOption.ReplaceExisting);
 
                 Logger.Log("Copy configuration to the local folder", Category.Debug, Priority.Low);
             }

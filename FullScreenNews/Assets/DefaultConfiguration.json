@@ -9,7 +9,15 @@
   "UpdatePhotoInterval": 25,
   "UpdateStockInterval": 120,
   "UpdateWeatherInterval": 3600,
-  "VideoChannels": [ "https://www.youtube.com/embed/CSafNIRagRU?autoplay=1", "https://www.youtube.com/embed/2QtdEq2tsh8?list=PLijOlz1lM3pzJjjR1jcIe5tfBYztEZIbY&autoplay=1", "https://www.youtube.com/embed/emsfNK3hVak?list=PLwXMmy5fUrVyay9LGp8sni6WhCaOZsfAX&autoplay=1", "https://www.youtube.com/embed/q7AiwWwiF_k?list=PLijOlz1lM3pzbT5NZ33h-S8PjQvrtOIDn&autoplay=1" ],
+  "VideoChannels": [
+    "https://www.ted.com/talks",
+    "http://www.huffingtonpost.com/section/video",
+    "http://pluto.tv/watch/news-24-7",
+    "http://www.newsy.com/",
+    "https://www.youtube.com/embed/IYDqtxvKDW4?list=UUAuUUnT6oDeKwE6v1NGQxug?autoplay=1",
+    "https://www.youtube.com/embed/2QtdEq2tsh8?list=PLijOlz1lM3pzJjjR1jcIe5tfBYztEZIbY&autoplay=1",
+    "https://www.youtube.com/embed/q7AiwWwiF_k?list=PLijOlz1lM3pzbT5NZ33h-S8PjQvrtOIDn&autoplay=1"
+  ],
   "WorldClock1Name": "Beijing",
   "WorldClock1Timezone": "China Standard Time",
   "WorldClock2Name": "Greenwich",

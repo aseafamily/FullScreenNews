@@ -36,7 +36,11 @@
             <TextBlock x:Name="errorTextBlock" Foreground="Red"/>
         </StackPanel>
         <StackPanel Margin="0,0,0,0">
-            <TextBlock Text="External Resources" Style="{StaticResource LocalSubheaderTextBlockStyle}"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="External Resources" Style="{StaticResource LocalSubheaderTextBlockStyle}"/>
+                <HyperlinkButton Margin="20,0,0,0" NavigateUri="http://bluehousemall.azurewebsites.net/liveframe/help.aspx">Help</HyperlinkButton>
+            </StackPanel>
+            
             <StackPanel Orientation="Vertical">
                 <TextBlock Text="Feed resources" Style="{StaticResource LocalBodyTextBlockStyle}" Margin="0,5,0,0"  />
                 <ScrollViewer HorizontalScrollBarVisibility="Auto">
