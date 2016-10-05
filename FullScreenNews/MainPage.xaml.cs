@@ -659,8 +659,61 @@ namespace FullScreenNews
 
             if (!string.IsNullOrEmpty(props.CameraModel))
             {
+                var requests = new System.Collections.Generic.List<string>();
+                requests.Add("System.Photo.FNumber");
+                requests.Add("System.Photo.FocalLength");
+                requests.Add("System.Photo.ExposureTime");
+
+                IDictionary<string, object> retrievedProps = await props.RetrievePropertiesAsync(requests);
+
+                string param = string.Empty;
+
+                double fNumber;
+                if (retrievedProps.ContainsKey("System.Photo.FNumber"))
+                {
+                    fNumber = (double)retrievedProps["System.Photo.FNumber"];
+                    if (!string.IsNullOrEmpty(param))
+                    {
+                        param += " ,";
+                    }
+
+                    param += "F/" + fNumber.ToString();
+                }
+
+                double focalLength;
+                if (retrievedProps.ContainsKey("System.Photo.FocalLength"))
+                {
+                    focalLength = (double)retrievedProps["System.Photo.FocalLength"];
+                    if (!string.IsNullOrEmpty(param))
+                    {
+                        param += ", ";
+                    }
+
+                    param += focalLength.ToString() + " mm";
+                }
+
+                double exposureTime;
+                if (retrievedProps.ContainsKey("System.Photo.ExposureTime"))
+                {
+                    exposureTime = (double)retrievedProps["System.Photo.ExposureTime"];
+                    if (exposureTime > 0)
+                    {
+                        if (!string.IsNullOrEmpty(param))
+                        {
+                            param += ", ";
+                        }
+
+                        param += "1/" + ((int)(1 / exposureTime)).ToString() + " sec.";
+                    }
+                }
+
                 string camera = props.CameraModel;
-                
+
+                if (!string.IsNullOrEmpty(param))
+                {
+                    camera += " (" + param + ")";
+                }
+
                 if (!string.IsNullOrEmpty(camera))
                 {
                     dateString = camera + " - " + dateString;
@@ -668,57 +721,50 @@ namespace FullScreenNews
                 }
             }
 
-            if (string.IsNullOrEmpty(props.Title))
+            if (props.Longitude != null && props.Latitude != null)
             {
-                if (props.Longitude != null && props.Latitude != null)
+                // Nearby location to use as a query hint.
+                BasicGeoposition queryHint = new BasicGeoposition();
+                queryHint.Latitude = props.Latitude.Value;
+                queryHint.Longitude = props.Longitude.Value;
+                Geopoint hintPoint = new Geopoint(queryHint);
+
+                MapLocationFinderResult result =
+                    await MapLocationFinder.FindLocationsAtAsync(hintPoint);
+
+                // If the query returns results, display the coordinates
+                // of the first result.
+                if (result.Status == MapLocationFinderStatus.Success)
                 {
-                    // Nearby location to use as a query hint.
-                    BasicGeoposition queryHint = new BasicGeoposition();
-                    queryHint.Latitude = props.Latitude.Value;
-                    queryHint.Longitude = props.Longitude.Value;
-                    Geopoint hintPoint = new Geopoint(queryHint);
-
-                    MapLocationFinderResult result =
-                        await MapLocationFinder.FindLocationsAtAsync(hintPoint);
-
-                    // If the query returns results, display the coordinates
-                    // of the first result.
-                    if (result.Status == MapLocationFinderStatus.Success)
+                    string txt = string.Empty;
+                    if (!string.IsNullOrWhiteSpace(result.Locations[0].Address.Town))
                     {
-                        string txt = string.Empty;
-                        if (!string.IsNullOrWhiteSpace(result.Locations[0].Address.Town))
-                        {
-                            txt = result.Locations[0].Address.Town;
-                        }
-
-                        if (!string.IsNullOrWhiteSpace(result.Locations[0].Address.Region))
-                        {
-                            if (txt.Length > 0)
-                            {
-                                txt += ", ";
-                            }
-                            txt += result.Locations[0].Address.Region;
-                        }
-
-                        if (!string.IsNullOrWhiteSpace(dateString))
-                        {
-                            if (txt.Length > 0)
-                            {
-                                txt += " - ";
-                            }
-                            txt += dateString;
-                        }
-
-                        textImg.Text = txt;
-
-                        props.Title = txt;
-                        props.SavePropertiesAsync();
+                        txt = result.Locations[0].Address.Town;
                     }
+
+                    if (!string.IsNullOrWhiteSpace(result.Locations[0].Address.Region))
+                    {
+                        if (txt.Length > 0)
+                        {
+                            txt += ", ";
+                        }
+                        txt += result.Locations[0].Address.Region;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(dateString))
+                    {
+                        if (txt.Length > 0)
+                        {
+                            txt += " - ";
+                        }
+                        txt += dateString;
+                    }
+
+                    textImg.Text = txt;
+
+                    //props.Title = txt;
+                    //props.SavePropertiesAsync();
                 }
-            }
-            else
-            {
-                textImg.Text = props.Title;
             }
         }
 

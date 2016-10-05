@@ -18,7 +18,7 @@ namespace FullScreenNews.Settings
 
         private ILoggerFacade Logger { get; set; }
 
-        private bool clearLocal = false;
+        private bool useDefault = false;
 
         public LocalAppConfigurationLoader(ILoggerFacade logger)
         {
@@ -31,7 +31,7 @@ namespace FullScreenNews.Settings
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile file = await localFolder.TryGetItemAsync(FileName) as StorageFile;
 
-            if (file == null || clearLocal)
+            if (file == null)
             {
                 // Get from default place
                 Windows.Storage.StorageFolder folder = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFolderAsync("Assets");
@@ -52,6 +52,11 @@ namespace FullScreenNews.Settings
                 DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(AppConfiguration));
                 stream.Position = 0;
                 Configuration = (AppConfiguration)ser.ReadObject(stream);
+            }
+
+            if (useDefault)
+            {
+                Configuration = new Settings.AppConfiguration();
             }
 
             MemoryStream stream1 = new MemoryStream();
