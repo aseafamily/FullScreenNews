@@ -11,7 +11,7 @@ namespace WebRole1
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            Server.Transfer("/liveframe");
+            //Server.Transfer("/liveframe");
         }
     }
 }

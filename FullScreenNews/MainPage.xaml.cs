@@ -795,36 +795,43 @@ namespace FullScreenNews
             this.tickers.Clear();
             foreach (var t in ticks)
             {
-                double price = Double.Parse(t.Price);
-                double change = Double.Parse(t.Change.Replace("%", ""));
-
-                int i = (int)Math.Abs(change);
-
-                if (i > 5)
+                try
                 {
-                    i = 5;
+                    double price = Double.Parse(t.Price);
+                    double change = Double.Parse(t.Change.Replace("%", ""));
+
+                    int i = (int)Math.Abs(change);
+
+                    if (i > 5)
+                    {
+                        i = 5;
+                    }
+
+                    i = 255 - i * 41;
+
+                    Color c;
+
+                    if (t.IsUp)
+                    {
+                        c = Color.FromArgb(255, (byte)i, 255, (byte)i);
+                    }
+                    else
+                    {
+                        c = Color.FromArgb(255, 255, (byte)i, (byte)i);
+                    }
+
+                    this.tickers.Add(new Ticker
+                    {
+                        Symbol = t.Symbol,
+                        Price = price.ToString("N02", CultureInfo.InvariantCulture),
+                        Up = string.Format("{0}%", change.ToString("N02", CultureInfo.InvariantCulture)),
+                        Color = new SolidColorBrush(c)
+                    });
                 }
-
-                i = 255 - i * 41;
-
-                Color c;
-
-                if (t.IsUp)
+                catch(Exception e)
                 {
-                    c = Color.FromArgb(255, (byte)i, 255, (byte)i);
+                    Logger.Log(e.Message, Category.Exception, Priority.Medium);
                 }
-                else
-                {
-                    c = Color.FromArgb(255, 255, (byte)i, (byte)i);
-                }
-
-                this.tickers.Add(new Ticker
-                {
-                    Symbol = t.Symbol,
-                    Price = price.ToString("N02", CultureInfo.InvariantCulture),
-                    Up = string.Format("{0}%", change.ToString("N02", CultureInfo.InvariantCulture)),
-                    Color = new SolidColorBrush(c)
-                });
             }
         }
 
@@ -889,7 +896,7 @@ namespace FullScreenNews
                         mysong.Play();
                     }
 
-                    var dialog = new MessageDialog("Have a rest for a few minutes after long time work ;-)");
+                    var dialog = new MessageDialog("Have a rest for a few minutes!");
                     dialog.Title = "Hi buddy";
                     dialog.Commands.Add(new UICommand { Label = "Ok", Id = 0 });
 

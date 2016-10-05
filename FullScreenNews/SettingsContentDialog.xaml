@@ -48,7 +48,7 @@
                 </ScrollViewer>
             </StackPanel>
             <StackPanel Orientation="Vertical" Margin="0,5,0,0">
-                <TextBlock Text="Content video resources" Style="{StaticResource LocalBodyTextBlockStyle}" Margin="0"  />
+                <TextBlock Text="Content resources" Style="{StaticResource LocalBodyTextBlockStyle}" Margin="0"  />
                 <ScrollViewer HorizontalScrollBarVisibility="Auto">
                     <TextBox x:Name="textBoxVideos" TextWrapping="Wrap" AcceptsReturn="True" MaxHeight="60" Width="1000"/>
                 </ScrollViewer>
