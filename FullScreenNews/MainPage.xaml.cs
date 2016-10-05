@@ -158,6 +158,9 @@ namespace FullScreenNews
             this.NewsProvider = container.Resolve<INewsProvider>();
             this.StockQuoteProvider = container.Resolve<IStockQuoteProvider>();
 
+            tickers = new ObservableCollection<FullScreenNews.Ticker>();
+            SetBackgroundFromBing();
+
             LoadResourcesFromConfiguration();
 
             // save time
@@ -335,8 +338,6 @@ namespace FullScreenNews
 
             alarmMinutes = this.AppConfigurationLoader.Configuration.Alarminterval / 60;
 
-            tickers = new ObservableCollection<FullScreenNews.Ticker>();
-
             // set up popup menu
             SetupMenus();
 
@@ -349,9 +350,9 @@ namespace FullScreenNews
 
             this.first = true;
 
-            pageTimer.Start();
+            this.NewsProvider.SearchAsync();
 
-            SetBackgroundFromBing();
+            pageTimer.Start();
 
             this.imgLocal.Visibility = Visibility.Collapsed;
             this.gridLocalImage.Background = null;
@@ -364,34 +365,41 @@ namespace FullScreenNews
 
         private async void GetTitle(string url, MenuFlyoutItem item)
         {
-            HttpClient hc = new HttpClient();
-            HttpResponseMessage response = await hc.GetAsync(new Uri(url, UriKind.Absolute), HttpCompletionOption.ResponseHeadersRead);
-
-            string page = await response.Content.ReadAsStringAsync();
-
-            Regex ex = new Regex(@"<title>[\s\S]*?<\/title>", RegexOptions.IgnoreCase);
-            string title = ex.Match(page).Value.Trim();
-            title = title.Replace("<title>", string.Empty);
-            title = title.Replace("</title>", string.Empty);
-
-            if (string.IsNullOrEmpty(title))
+            try
             {
-                title = url.Replace("http://", "");
+                HttpClient hc = new HttpClient();
+                HttpResponseMessage response = await hc.GetAsync(new Uri(url, UriKind.Absolute), HttpCompletionOption.ResponseHeadersRead);
+
+                string page = await response.Content.ReadAsStringAsync();
+
+                Regex ex = new Regex(@"<title>[\s\S]*?<\/title>", RegexOptions.IgnoreCase);
+                string title = ex.Match(page).Value.Trim();
+                title = title.Replace("<title>", string.Empty);
+                title = title.Replace("</title>", string.Empty);
+
+                if (string.IsNullOrEmpty(title))
+                {
+                    title = url.Replace("http://", "");
+                }
+
+                const int length = 30;
+
+                if (url.Contains("youtube"))
+                {
+                    title = "Youtube - " + title;
+                }
+
+                if (title.Length > length - 3)
+                {
+                    title = title.Substring(0, length) + " ...";
+                }
+
+                item.Text = title;
             }
-
-            const int length = 30;
-
-            if (url.Contains("youtube"))
+            catch (Exception e)
             {
-                title = "Youtube - " + title;
+                Logger.Log(string.Format("GetTitle for {0} has exception: {1}", url, e.Message), Category.Exception, Priority.Medium);
             }
-
-            if (title.Length > length - 3)
-            {
-                title = title.Substring(0, length) + " ...";
-            }
-
-            item.Text = title;
         }
 
         private void SetupMenus()

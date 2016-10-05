@@ -23,13 +23,13 @@ namespace FullScreenNews.Providers.News
             : base(logger, appConfigurationLoader)
         {
             Logger.LogType<FeedNewsProvider>();
-
-            FeedResourceUrls = AppConfigurationLoader.Configuration.FeedSources;
         }
 
         public async Task SearchAsync()
         {
             Logger.Log("SearchAsync", Category.Debug, Priority.Low);
+
+            FeedResourceUrls = AppConfigurationLoader.Configuration.FeedSources;
 
             List<NewsArticle> localArticles = new List<NewsArticle>();
 

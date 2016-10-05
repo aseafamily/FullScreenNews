@@ -1,2 +1,2 @@
-MainPackage=d:\documents\visual studio 2015\Projects\FullScreenNews\FullScreenNews\bin\x64\Release\LiveFrame_1.1.1.0_x64.appx
-SymbolPackage=d:\documents\visual studio 2015\Projects\FullScreenNews\FullScreenNews\AppPackages\LiveFrame_1.1.1.0_Test\LiveFrame_1.1.1.0_x64.appxsym
+MainPackage=d:\documents\visual studio 2015\Projects\FullScreenNews\FullScreenNews\bin\x64\Release\LiveFrame_1.1.2.0_x64.appx
+SymbolPackage=d:\documents\visual studio 2015\Projects\FullScreenNews\FullScreenNews\AppPackages\LiveFrame_1.1.2.0_Test\LiveFrame_1.1.2.0_x64.appxsym
