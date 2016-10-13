@@ -51,7 +51,7 @@
 
             <Grid x:Name="gridAlarm" VerticalAlignment="Bottom" Height="2" Background="Green" Opacity="0.9" Margin="0,0,2000,0"></Grid>
 
-            <Grid Background="#FF293133" Opacity="0.9" Grid.Row="1" HorizontalAlignment="Left" Width="1570">
+            <Grid Background="#FF293133" Opacity="0.9" Grid.Row="1" HorizontalAlignment="Left">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="320" />
                     <ColumnDefinition Width="Auto" />
@@ -113,6 +113,8 @@
                             <Image x:Name="imgThumbnail" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="120"/>
                             <TextBlock x:Name="textDesc" Grid.Column="1" HorizontalAlignment="Right" Margin="10,0,0,0" TextWrapping="Wrap" Text="" FontSize="18" Foreground="#FFF9F8F8"/>
                         </Grid>
+                        <!-- Use a dummy element to avoid nasty gap issue -->
+                        <Grid Width="10000"></Grid>
                         <TextBlock x:Name="textInfo" Grid.Row="1" HorizontalAlignment="Right" Margin="0,11,0,0" TextWrapping="Wrap" Text="" FontSize="12" Foreground="#FFD6CECE"/>
                     </Grid>
                 </Grid>

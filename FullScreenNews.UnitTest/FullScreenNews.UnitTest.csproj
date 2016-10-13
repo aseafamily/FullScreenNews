@@ -127,7 +127,7 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FullScreenNews\FullScreenNews.csproj">
+    <ProjectReference Include="..\FullScreenNews\LiveFrame.csproj">
       <Project>{FEA0F6A8-2D63-48BA-8A9E-D19CB18EDC0D}</Project>
       <Name>FullScreenNews</Name>
     </ProjectReference>
