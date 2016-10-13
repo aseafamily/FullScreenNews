@@ -363,10 +363,6 @@
       <ReservedName>Live Frame</ReservedName>
     </ReservedNames>
   </ProductReservedInfo>
-  <AccountPackageIdentityNames>
-    <MainPackageIdentityName>40023Alexmajin.LiveDashboard</MainPackageIdentityName>
-    <MainPackageIdentityName>40023Alexmajin.LivePhrame</MainPackageIdentityName>
-    <MainPackageIdentityName>40023Alexmajin.Phrame</MainPackageIdentityName>
-  </AccountPackageIdentityNames>
+  <AccountPackageIdentityNames />
   <PackageInfoList LandingUrl="https://developer.microsoft.com/dashboard/Application?appId=9NBLGGH53GB1" />
 </StoreAssociation>
