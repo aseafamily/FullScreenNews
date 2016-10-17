@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.ApplicationModel;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -44,6 +45,13 @@ namespace FullScreenNews
 
             this.Opened += SettingsContentDialog_Opened;
             this.Closing += SettingsContentDialog_Closing;
+
+            string appName = Package.Current.Id.Name;
+            var version = Package.Current.Id.Version;
+            string appVersion = String.Format("{0}.{1}.{2}.{3}",
+                version.Major, version.Minor, version.Build, version.Revision);
+
+            this.Title = string.Format("Settings ({0} {1})", appName, appVersion);
         }
 
         public SettingsContentDialog(IContainer container) : this()

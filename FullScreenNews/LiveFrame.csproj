@@ -21,6 +21,7 @@
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
     <PackageCertificateThumbprint>DB243442FB1D6C9A33E9BBE2EA874846EB8767A1</PackageCertificateThumbprint>
+    <HockeyAppResourceId>3b403d61c43d40d5a4025cfa4abc2454</HockeyAppResourceId>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -97,6 +98,7 @@
     <Content Include="Assets\DefaultConfiguration.json" />
     <None Include="LiveFrame_StoreKey.pfx" />
     <None Include="project.json" />
+    <None Include="Service References\HockeyApp\ConnectedService.json" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.xaml.cs">
