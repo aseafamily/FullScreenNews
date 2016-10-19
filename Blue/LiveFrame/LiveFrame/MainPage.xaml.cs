@@ -1,8 +1,11 @@
-﻿using System;
+﻿using HigLabo.Net.Rss;
+using iCal.PCL.Serialization;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using WeatherNet;
@@ -200,6 +203,11 @@ namespace LiveFrame
 
             int seconds = (int)span.TotalSeconds;
 
+            if (first || seconds % 1000 == 0)
+            {
+                GetCalendar();
+            }
+
             if (first || seconds % 3600 == 0)
             {
                 UpdateWeather();
@@ -219,6 +227,22 @@ namespace LiveFrame
             {
                 first = false;
             }
+        }
+
+        private void GetCalendar()
+        {
+            /*
+            string icalUrl = "webcals://sharing.df.calendar.live.com/calendar/private/f651b1ea-062b-4916-a5ac-38576b71b037/57933573-0275-48e2-b1ba-6f93ff0b15df/cid-a338a6eafbfacf8c/calendar.ics";
+            
+            HttpClient client = new HttpClient();
+
+            // Using an Async call makes sure the app is responsive during the time the response is fetched.
+            // GetAsync sends an Async GET request to the Specified URI.
+            HttpResponseMessage response = await client.GetAsync(new Uri(icalUrl));
+
+            string strJSONString = await response.Content.ReadAsStringAsync();
+            // var r = iCalSerializer.Deserialize();
+             * */
         }
 
         private async void GetQotes(bool first)
@@ -767,13 +791,15 @@ namespace LiveFrame
             if (item.IsChecked)
             {
                 panelTime.Visibility = Windows.UI.Xaml.Visibility.Visible;
-                panelMoreInfo.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                panelWeather.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                panelNewsStocks.Visibility = Windows.UI.Xaml.Visibility.Visible;
                 textRun.Visibility = Windows.UI.Xaml.Visibility.Visible;
             }
             else
             {
                 panelTime.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-                panelMoreInfo.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                panelWeather.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                panelNewsStocks.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                 textRun.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
             }
         }

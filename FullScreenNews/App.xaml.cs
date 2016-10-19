@@ -23,6 +23,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Microsoft.HockeyApp;
 
 namespace FullScreenNews
 {
@@ -46,7 +47,15 @@ namespace FullScreenNews
         /// </summary>
         public App()
         {
+            HockeyClient.Current.Configure("3b403d61c43d40d5a4025cfa4abc2454",
+                new TelemetryConfiguration() { EnableDiagnostics = true })
+                .SetExceptionDescriptionLoader((Exception ex) =>
+                {
+                    return "Exception HResult: " + ex.HResult.ToString();
+                });
+
             this.InitializeComponent();
+
             this.Suspending += OnSuspending;
             DebugSettings.BindingFailed += DebugSettings_BindingFailed;
 

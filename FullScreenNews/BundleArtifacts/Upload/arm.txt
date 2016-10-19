@@ -1,2 +1,2 @@
-MainPackage=C:\Projects\FullScreenNews\FullScreenNews\bin\ARM\Release\Upload\LiveFrame_1.1.10.0_ARM.appx
-SymbolPackage=C:\Projects\FullScreenNews\FullScreenNews\AppPackages\LiveFrame_1.1.10.0\LiveFrame_1.1.10.0_ARM.appxsym
+MainPackage=C:\Projects\FullScreenNews\FullScreenNews\bin\ARM\Release\Upload\LiveFrame_1.1.12.0_ARM.appx
+SymbolPackage=C:\Projects\FullScreenNews\FullScreenNews\AppPackages\LiveFrame_1.1.12.0\LiveFrame_1.1.12.0_ARM.appxsym

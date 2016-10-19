@@ -15,6 +15,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Microsoft.ApplicationInsights;
+using Microsoft.HockeyApp;
 
 // The Blank Application template is documented at http://go.microsoft.com/fwlink/?LinkId=234227
 
@@ -36,6 +37,13 @@ namespace LiveFrame
         /// </summary>
         public App()
         {
+            HockeyClient.Current.Configure("3b403d61c43d40d5a4025cfa4abc2454",
+                new TelemetryConfiguration() { EnableDiagnostics = true })
+                .SetExceptionDescriptionLoader((Exception ex) =>
+                {
+                    return "Exception HResult: " + ex.HResult.ToString();
+                });
+
             TelemetryClient = new TelemetryClient();
 
             this.InitializeComponent();

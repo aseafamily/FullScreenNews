@@ -29,7 +29,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" Orientation="Horizontal" x:Name="panelMoreInfo">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" x:Name="panelWeather">
                     <Image x:Name="imageWeatherToday" HorizontalAlignment="Left" Height="100" Margin="100,0,20,20" VerticalAlignment="Center" Width="100" Opacity="1"/>
                     <TextBlock x:Name="textWeatherToday" Text="00" FontSize="40" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
                     <Image x:Name="imageWeatherDay1" Width="50" Height="50" VerticalAlignment="Center" Opacity="1" Margin="20,0,0,0"></Image>
@@ -42,29 +42,29 @@
                     <TextBlock x:Name="textWeatherDay4" Margin="5,0,0,0" Text="00" FontSize="20" VerticalAlignment="Center"></TextBlock>
                     <Image x:Name="imageWeatherDay5" Width="50" Height="50" VerticalAlignment="Center" Opacity="1" Margin="20,0,0,0"></Image>
                     <TextBlock x:Name="textWeatherDay5" Margin="5,0,0,0" Text="00" FontSize="20" VerticalAlignment="Center"></TextBlock>
-                    <StackPanel>
-                        <TextBlock x:Name="textTitle" Text="Loading news" FontSize="24" FontWeight="Bold" VerticalAlignment="Bottom" Margin="-500,100,0,-10"></TextBlock> 
-                        <StackPanel Orientation="Horizontal" Margin="-690,20,0,0" VerticalAlignment="Bottom">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock x:Name="textTName1" Text="SPY" FontWeight="Bold" FontSize="20"></TextBlock>
-                                <TextBlock x:Name="textTPrice1" Text="" FontWeight="Bold" Margin="12,0,0,0" HorizontalAlignment="Right" TextAlignment="Right" FontSize="20"></TextBlock>
-                                <TextBlock x:Name="textTUp1" Text="" FontWeight="Bold" Margin="12,0,0,0" HorizontalAlignment="Right" TextAlignment="Right" FontSize="20"></TextBlock>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="40,0,0,0">
-                                <TextBlock x:Name="textTName2" Text="MSFT" FontWeight="Bold" FontSize="20"></TextBlock>
-                                <TextBlock x:Name="textTPrice2" Text="" FontWeight="Bold" Margin="12,0,0,0" HorizontalAlignment="Right" TextAlignment="Right" FontSize="20"></TextBlock>
-                                <TextBlock x:Name="textTUp2" Text="" FontWeight="Bold" Margin="12,0,0,0" HorizontalAlignment="Right" TextAlignment="Right" FontSize="20"></TextBlock>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="40,0,0,0">
-                                <TextBlock x:Name="textTName3" Text="NGD" FontWeight="Bold" FontSize="20"></TextBlock>
-                                <TextBlock x:Name="textTPrice3" Text="" FontWeight="Bold" Margin="12,0,0,0" HorizontalAlignment="Right" TextAlignment="Right" FontSize="20"></TextBlock>
-                                <TextBlock x:Name="textTUp3" Text="" FontWeight="Bold" Margin="12,0,0,0" HorizontalAlignment="Right" TextAlignment="Right" FontSize="20"></TextBlock>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="40,0,0,0">
-                                <TextBlock x:Name="textTName4" Text="TSLA" FontWeight="Bold" FontSize="20"></TextBlock>
-                                <TextBlock x:Name="textTPrice4" Text="" FontWeight="Bold" Margin="12,0,0,0" HorizontalAlignment="Right" TextAlignment="Right" FontSize="20"></TextBlock>
-                                <TextBlock x:Name="textTUp4" Text="" FontWeight="Bold" Margin="12,0,0,0" HorizontalAlignment="Right" TextAlignment="Right" FontSize="20"></TextBlock>
-                             </StackPanel>
+                </StackPanel>
+                <StackPanel Margin="100,0,0,0" x:Name="panelNewsStocks">
+                    <TextBlock x:Name="textTitle" Text="Loading news" FontSize="24" FontWeight="Bold" VerticalAlignment="Bottom" Margin="0,110,0,0"></TextBlock>
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0" VerticalAlignment="Bottom">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="textTName1" Text="SPY" FontWeight="Bold" FontSize="20"></TextBlock>
+                            <TextBlock x:Name="textTPrice1" Text="" FontWeight="Bold" Margin="12,0,0,0" HorizontalAlignment="Right" TextAlignment="Right" FontSize="20"></TextBlock>
+                            <TextBlock x:Name="textTUp1" Text="" FontWeight="Bold" Margin="12,0,0,0" HorizontalAlignment="Right" TextAlignment="Right" FontSize="20"></TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="40,0,0,0">
+                            <TextBlock x:Name="textTName2" Text="MSFT" FontWeight="Bold" FontSize="20"></TextBlock>
+                            <TextBlock x:Name="textTPrice2" Text="" FontWeight="Bold" Margin="12,0,0,0" HorizontalAlignment="Right" TextAlignment="Right" FontSize="20"></TextBlock>
+                            <TextBlock x:Name="textTUp2" Text="" FontWeight="Bold" Margin="12,0,0,0" HorizontalAlignment="Right" TextAlignment="Right" FontSize="20"></TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="40,0,0,0">
+                            <TextBlock x:Name="textTName3" Text="NGD" FontWeight="Bold" FontSize="20"></TextBlock>
+                            <TextBlock x:Name="textTPrice3" Text="" FontWeight="Bold" Margin="12,0,0,0" HorizontalAlignment="Right" TextAlignment="Right" FontSize="20"></TextBlock>
+                            <TextBlock x:Name="textTUp3" Text="" FontWeight="Bold" Margin="12,0,0,0" HorizontalAlignment="Right" TextAlignment="Right" FontSize="20"></TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="40,0,0,0">
+                            <TextBlock x:Name="textTName4" Text="TSLA" FontWeight="Bold" FontSize="20"></TextBlock>
+                            <TextBlock x:Name="textTPrice4" Text="" FontWeight="Bold" Margin="12,0,0,0" HorizontalAlignment="Right" TextAlignment="Right" FontSize="20"></TextBlock>
+                            <TextBlock x:Name="textTUp4" Text="" FontWeight="Bold" Margin="12,0,0,0" HorizontalAlignment="Right" TextAlignment="Right" FontSize="20"></TextBlock>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>

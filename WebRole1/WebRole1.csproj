@@ -98,8 +98,12 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
+    <Reference Include="Windows.Foundation.UniversalApiContract">
+      <HintPath>..\..\..\Program Files (x86)\Windows Kits\10\References\Windows.Foundation.UniversalApiContract\2.0.0.0\Windows.Foundation.UniversalApiContract.winmd</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="LiveFrame\CivilAddress.aspx" />
     <Content Include="packages.config" />
     <None Include="Properties\PublishProfiles\BlueHouseMall - Web Deploy.pubxml" />
     <None Include="Web.Debug.config">
@@ -123,6 +127,13 @@
     </Compile>
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="LiveFrame\CivilAddress.aspx.cs">
+      <DependentUpon>CivilAddress.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="LiveFrame\CivilAddress.aspx.designer.cs">
+      <DependentUpon>CivilAddress.aspx</DependentUpon>
     </Compile>
     <Compile Include="LiveFrame\Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>

@@ -66,7 +66,10 @@ namespace FullScreenNews
         AlarmBase = 200,
         AlarmBase30 = 230,
         AlarmBase45 = 245,
-        AlarmBase60 = 260
+        AlarmBase60 = 260,
+        ContentMode = 300,
+        NoSideWindowMode = 301,
+        FullMode = 302
     }
 
     /// <summary>
@@ -119,6 +122,8 @@ namespace FullScreenNews
 
         private MenuFlyoutSubItem alarmSubMenu;
 
+        private MenuFlyoutSubItem displaySubMenu;
+
         private bool AccessOnline = true;
 
         public MainPage()
@@ -139,7 +144,7 @@ namespace FullScreenNews
 
             if (UIViewSettings.GetForCurrentView().UserInteractionMode == UserInteractionMode.Touch)
             {
-                this.TwitterList.Visibility = Visibility.Collapsed;
+                SetDisplayMode(ContentItem.ContentMode);
             }
         }
 
@@ -442,6 +447,34 @@ namespace FullScreenNews
 
             this.menuFlyout.Items.Add(new MenuFlyoutSeparator());
 
+            displaySubMenu = new MenuFlyoutSubItem();
+            displaySubMenu.Text = "Display Mode";
+
+            this.menuFlyout.Items.Add(displaySubMenu);
+
+            item = new ToggleMenuFlyoutItem();
+            item.Text = "Simple mode";
+            item.Tag = ContentItem.ContentMode;
+            (item as ToggleMenuFlyoutItem).IsChecked = false;
+            item.Click += option_Click;
+            displaySubMenu.Items.Add(item);
+
+            item = new ToggleMenuFlyoutItem();
+            item.Text = "No side window mode";
+            item.Tag = ContentItem.NoSideWindowMode;
+            (item as ToggleMenuFlyoutItem).IsChecked = false;
+            item.Click += option_Click;
+            displaySubMenu.Items.Add(item);
+
+            item = new ToggleMenuFlyoutItem();
+            item.Text = "Full mode";
+            item.Tag = ContentItem.FullMode;
+            (item as ToggleMenuFlyoutItem).IsChecked = true;
+            item.Click += option_Click;
+            displaySubMenu.Items.Add(item);
+
+            this.menuFlyout.Items.Add(new MenuFlyoutSeparator());
+
             alarmSubMenu = new MenuFlyoutSubItem();
             alarmSubMenu.Text = "Quick alarm intervals";
 
@@ -626,145 +659,153 @@ namespace FullScreenNews
 
             this.Logger.Log(string.Format("Show photo [{0}/{1}]: {2}", this.photoIndex, this.photoList.Count, file.Path), Category.Debug, Priority.Low);
 
-            using (IRandomAccessStream fileStream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read))
+            try
             {
-                BitmapImage bitmapImage = new BitmapImage();
-                await bitmapImage.SetSourceAsync(fileStream);
 
-                if (bitmapImage.PixelWidth > bitmapImage.PixelHeight)
+                using (IRandomAccessStream fileStream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read))
                 {
-                    imgLocal.Width = (int)gridLocalImage.RenderSize.Width;
-                    imgLocal.Stretch = Stretch.UniformToFill;
+                    BitmapImage bitmapImage = new BitmapImage();
+                    await bitmapImage.SetSourceAsync(fileStream);
+
+                    if (bitmapImage.PixelWidth > bitmapImage.PixelHeight)
+                    {
+                        imgLocal.Width = (int)gridLocalImage.RenderSize.Width;
+                        imgLocal.Stretch = Stretch.UniformToFill;
+                    }
+                    else
+                    {
+                        imgLocal.Stretch = Stretch.Uniform;
+                    }
+
+                    imgLocal.Source = bitmapImage;
+                }
+
+                ImageProperties props = await file.Properties.GetImagePropertiesAsync();
+                DateTimeOffset date = props.DateTaken;
+                string dateString;
+                if (date != null)
+                {
+                    dateString = date.ToString("M/d/yyyy h:mm tt");
                 }
                 else
                 {
-                    imgLocal.Stretch = Stretch.Uniform;
+                    dateString = string.Empty;
                 }
+                textImg.Text = dateString;
 
-                imgLocal.Source = bitmapImage;
-            }
-
-            ImageProperties props = await file.Properties.GetImagePropertiesAsync();
-            DateTimeOffset date = props.DateTaken;
-            string dateString;
-            if (date != null)
-            {
-                dateString = date.ToString("M/d/yyyy h:mm tt");
-            }
-            else
-            {
-                dateString = string.Empty;
-            }
-            textImg.Text = dateString;
-
-            if (!string.IsNullOrEmpty(props.CameraModel))
-            {
-                var requests = new System.Collections.Generic.List<string>();
-                requests.Add("System.Photo.FNumber");
-                requests.Add("System.Photo.FocalLength");
-                requests.Add("System.Photo.ExposureTime");
-
-                IDictionary<string, object> retrievedProps = await props.RetrievePropertiesAsync(requests);
-
-                string param = string.Empty;
-
-                double fNumber;
-                if (retrievedProps.ContainsKey("System.Photo.FNumber"))
+                if (!string.IsNullOrEmpty(props.CameraModel))
                 {
-                    fNumber = (double)retrievedProps["System.Photo.FNumber"];
-                    if (!string.IsNullOrEmpty(param))
+                    var requests = new System.Collections.Generic.List<string>();
+                    requests.Add("System.Photo.FNumber");
+                    requests.Add("System.Photo.FocalLength");
+                    requests.Add("System.Photo.ExposureTime");
+
+                    IDictionary<string, object> retrievedProps = await props.RetrievePropertiesAsync(requests);
+
+                    string param = string.Empty;
+
+                    double fNumber;
+                    if (retrievedProps.ContainsKey("System.Photo.FNumber"))
                     {
-                        param += " ,";
+                        fNumber = (double)retrievedProps["System.Photo.FNumber"];
+                        if (!string.IsNullOrEmpty(param))
+                        {
+                            param += " ,";
+                        }
+
+                        param += "F/" + fNumber.ToString();
                     }
 
-                    param += "F/" + fNumber.ToString();
-                }
-
-                double focalLength;
-                if (retrievedProps.ContainsKey("System.Photo.FocalLength"))
-                {
-                    focalLength = (double)retrievedProps["System.Photo.FocalLength"];
-                    if (!string.IsNullOrEmpty(param))
+                    double focalLength;
+                    if (retrievedProps.ContainsKey("System.Photo.FocalLength"))
                     {
-                        param += ", ";
-                    }
-
-                    param += focalLength.ToString() + " mm";
-                }
-
-                double exposureTime;
-                if (retrievedProps.ContainsKey("System.Photo.ExposureTime"))
-                {
-                    exposureTime = (double)retrievedProps["System.Photo.ExposureTime"];
-                    if (exposureTime > 0)
-                    {
+                        focalLength = (double)retrievedProps["System.Photo.FocalLength"];
                         if (!string.IsNullOrEmpty(param))
                         {
                             param += ", ";
                         }
 
-                        param += "1/" + ((int)(1 / exposureTime)).ToString() + " sec.";
+                        param += focalLength.ToString() + " mm";
+                    }
+
+                    double exposureTime;
+                    if (retrievedProps.ContainsKey("System.Photo.ExposureTime"))
+                    {
+                        exposureTime = (double)retrievedProps["System.Photo.ExposureTime"];
+                        if (exposureTime > 0)
+                        {
+                            if (!string.IsNullOrEmpty(param))
+                            {
+                                param += ", ";
+                            }
+
+                            param += "1/" + ((int)(1 / exposureTime)).ToString() + " sec.";
+                        }
+                    }
+
+                    string camera = props.CameraModel;
+
+                    if (!string.IsNullOrEmpty(param))
+                    {
+                        camera += " (" + param + ")";
+                    }
+
+                    if (!string.IsNullOrEmpty(camera))
+                    {
+                        dateString = camera + " - " + dateString;
+                        textImg.Text = dateString;
                     }
                 }
 
-                string camera = props.CameraModel;
-
-                if (!string.IsNullOrEmpty(param))
+                if (props.Longitude != null && props.Latitude != null)
                 {
-                    camera += " (" + param + ")";
-                }
+                    // Nearby location to use as a query hint.
+                    BasicGeoposition queryHint = new BasicGeoposition();
+                    queryHint.Latitude = props.Latitude.Value;
+                    queryHint.Longitude = props.Longitude.Value;
+                    Geopoint hintPoint = new Geopoint(queryHint);
 
-                if (!string.IsNullOrEmpty(camera))
-                {
-                    dateString = camera + " - " + dateString;
-                    textImg.Text = dateString;
+                    MapLocationFinderResult result =
+                        await MapLocationFinder.FindLocationsAtAsync(hintPoint);
+
+                    // If the query returns results, display the coordinates
+                    // of the first result.
+                    if (result.Status == MapLocationFinderStatus.Success)
+                    {
+                        string txt = string.Empty;
+                        if (!string.IsNullOrWhiteSpace(result.Locations[0].Address.Town))
+                        {
+                            txt = result.Locations[0].Address.Town;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(result.Locations[0].Address.Region))
+                        {
+                            if (txt.Length > 0)
+                            {
+                                txt += ", ";
+                            }
+                            txt += result.Locations[0].Address.Region;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(dateString))
+                        {
+                            if (txt.Length > 0)
+                            {
+                                txt += " - ";
+                            }
+                            txt += dateString;
+                        }
+
+                        textImg.Text = txt;
+
+                        //props.Title = txt;
+                        //props.SavePropertiesAsync();
+                    }
                 }
             }
-
-            if (props.Longitude != null && props.Latitude != null)
+            catch (Exception e)
             {
-                // Nearby location to use as a query hint.
-                BasicGeoposition queryHint = new BasicGeoposition();
-                queryHint.Latitude = props.Latitude.Value;
-                queryHint.Longitude = props.Longitude.Value;
-                Geopoint hintPoint = new Geopoint(queryHint);
-
-                MapLocationFinderResult result =
-                    await MapLocationFinder.FindLocationsAtAsync(hintPoint);
-
-                // If the query returns results, display the coordinates
-                // of the first result.
-                if (result.Status == MapLocationFinderStatus.Success)
-                {
-                    string txt = string.Empty;
-                    if (!string.IsNullOrWhiteSpace(result.Locations[0].Address.Town))
-                    {
-                        txt = result.Locations[0].Address.Town;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(result.Locations[0].Address.Region))
-                    {
-                        if (txt.Length > 0)
-                        {
-                            txt += ", ";
-                        }
-                        txt += result.Locations[0].Address.Region;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(dateString))
-                    {
-                        if (txt.Length > 0)
-                        {
-                            txt += " - ";
-                        }
-                        txt += dateString;
-                    }
-
-                    textImg.Text = txt;
-
-                    //props.Title = txt;
-                    //props.SavePropertiesAsync();
-                }
+                Logger.Log("Display photo exception: " + e.Message, Category.Exception, Priority.Medium);
             }
         }
 
@@ -779,49 +820,48 @@ namespace FullScreenNews
             string strBingImageURL = string.Format("http://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n={0}&mkt={1}", backgroundCount, strRegion);
             string strJSONString = "";
 
-            HttpClient client = new HttpClient();
-
-            // Using an Async call makes sure the app is responsive during the time the response is fetched.
-            // GetAsync sends an Async GET request to the Specified URI.
-            HttpResponseMessage response = await client.GetAsync(new Uri(strBingImageURL));
-
-            // Content property get or sets the content of a HTTP response message. 
-            // ReadAsStringAsync is a method of the HttpContent which asynchronously 
-            // reads the content of the HTTP Response and returns as a string.
-            strJSONString = await response.Content.ReadAsStringAsync();
-
-            // Parse using Windows.Data.Json.
-            JsonObject jsonObject;
-            bool boolParsed = JsonObject.TryParse(strJSONString, out jsonObject);
-
-            if (boolParsed && backgroundIndex < jsonObject["images"].GetArray().Count())
+            try
             {
-                string url = jsonObject["images"].GetArray()[backgroundIndex].GetObject()["url"].GetString();
-                string text = jsonObject["images"].GetArray()[backgroundIndex].GetObject()["copyright"].GetString();
-                if (text.IndexOf('(') > 0)
-                {
-                    text = text.Split(new string[] { "(" }, StringSplitOptions.RemoveEmptyEntries)[0];
-                }
 
-                if (this.imgLocal.Visibility == Visibility.Collapsed)
-                {
-                    textImg.Text = text;
-                }
-                bingImageText = text;
+                HttpClient client = new HttpClient();
 
-                if (!string.IsNullOrEmpty(url))
-                {
-                    imgBackground.ImageSource = new BitmapImage(new Uri("https://www.bing.com" + url));
-                }
+                // Using an Async call makes sure the app is responsive during the time the response is fetched.
+                // GetAsync sends an Async GET request to the Specified URI.
+                HttpResponseMessage response = await client.GetAsync(new Uri(strBingImageURL));
 
-                /*
-                backgroundIndex++;
+                // Content property get or sets the content of a HTTP response message. 
+                // ReadAsStringAsync is a method of the HttpContent which asynchronously 
+                // reads the content of the HTTP Response and returns as a string.
+                strJSONString = await response.Content.ReadAsStringAsync();
 
-                if (backgroundIndex >= jsonObject["images"].GetArray().Count())
+                // Parse using Windows.Data.Json.
+                JsonObject jsonObject;
+                bool boolParsed = JsonObject.TryParse(strJSONString, out jsonObject);
+
+                if (boolParsed && backgroundIndex < jsonObject["images"].GetArray().Count())
                 {
-                    backgroundIndex = 0;
+                    string url = jsonObject["images"].GetArray()[backgroundIndex].GetObject()["url"].GetString();
+                    string text = jsonObject["images"].GetArray()[backgroundIndex].GetObject()["copyright"].GetString();
+                    if (text.IndexOf('(') > 0)
+                    {
+                        text = text.Split(new string[] { "(" }, StringSplitOptions.RemoveEmptyEntries)[0];
+                    }
+
+                    if (this.imgLocal.Visibility == Visibility.Collapsed)
+                    {
+                        textImg.Text = text;
+                    }
+                    bingImageText = text;
+
+                    if (!string.IsNullOrEmpty(url))
+                    {
+                        imgBackground.ImageSource = new BitmapImage(new Uri("https://www.bing.com" + url));
+                    }
                 }
-                */
+            }
+            catch (Exception e)
+            {
+                Logger.Log("Exception when set background: " + e.Message, Category.Exception, Priority.Medium);
             }
         }
 
@@ -829,63 +869,71 @@ namespace FullScreenNews
         {
             this.Logger.Log("GetQotes", Category.Info, Priority.Low);
 
-            if (this.tickers.Count > 0)
+            try
             {
-                // Not first time, let's see if market is closed
-                int hour = DateTime.Now.Hour;
-                bool isWeekend = DateTime.Now.DayOfWeek == DayOfWeek.Saturday || DateTime.Now.DayOfWeek == DayOfWeek.Sunday;
 
-                // market open from 6-1
-                if (hour < 6 || hour >= 14 || isWeekend)
+                if (this.tickers.Count > 0)
                 {
-                    return;
+                    // Not first time, let's see if market is closed
+                    int hour = DateTime.Now.Hour;
+                    bool isWeekend = DateTime.Now.DayOfWeek == DayOfWeek.Saturday || DateTime.Now.DayOfWeek == DayOfWeek.Sunday;
+
+                    // market open from 6-1
+                    if (hour < 6 || hour >= 14 || isWeekend)
+                    {
+                        return;
+                    }
+                }
+
+                List<Tick> ticks = await this.StockQuoteProvider.GetQuotes();
+
+                textTickRefresh.Text = DateTime.Now.ToString("h:mm M/d");
+
+                this.tickers.Clear();
+                foreach (var t in ticks)
+                {
+                    try
+                    {
+                        double price = Double.Parse(t.Price);
+                        double change = Double.Parse(t.Change.Replace("%", ""));
+
+                        int i = (int)Math.Abs(change);
+
+                        if (i > 5)
+                        {
+                            i = 5;
+                        }
+
+                        i = 255 - i * 41;
+
+                        Color c;
+
+                        if (t.IsUp)
+                        {
+                            c = Color.FromArgb(255, (byte)i, 255, (byte)i);
+                        }
+                        else
+                        {
+                            c = Color.FromArgb(255, 255, (byte)i, (byte)i);
+                        }
+
+                        this.tickers.Add(new Ticker
+                        {
+                            Symbol = t.Symbol,
+                            Price = price.ToString("N02", CultureInfo.InvariantCulture),
+                            Up = string.Format("{0}%", change.ToString("N02", CultureInfo.InvariantCulture)),
+                            Color = new SolidColorBrush(c)
+                        });
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Log(e.Message, Category.Exception, Priority.Medium);
+                    }
                 }
             }
-
-            List<Tick> ticks = await this.StockQuoteProvider.GetQuotes();
-
-            textTickRefresh.Text = DateTime.Now.ToString("h:mm M/d");
-
-            this.tickers.Clear();
-            foreach (var t in ticks)
+            catch (Exception e)
             {
-                try
-                {
-                    double price = Double.Parse(t.Price);
-                    double change = Double.Parse(t.Change.Replace("%", ""));
-
-                    int i = (int)Math.Abs(change);
-
-                    if (i > 5)
-                    {
-                        i = 5;
-                    }
-
-                    i = 255 - i * 41;
-
-                    Color c;
-
-                    if (t.IsUp)
-                    {
-                        c = Color.FromArgb(255, (byte)i, 255, (byte)i);
-                    }
-                    else
-                    {
-                        c = Color.FromArgb(255, 255, (byte)i, (byte)i);
-                    }
-
-                    this.tickers.Add(new Ticker
-                    {
-                        Symbol = t.Symbol,
-                        Price = price.ToString("N02", CultureInfo.InvariantCulture),
-                        Up = string.Format("{0}%", change.ToString("N02", CultureInfo.InvariantCulture)),
-                        Color = new SolidColorBrush(c)
-                    });
-                }
-                catch(Exception e)
-                {
-                    Logger.Log(e.Message, Category.Exception, Priority.Medium);
-                }
+                Logger.Log("GetQuotes exception:" + e.Message, Category.Exception, Priority.Medium);
             }
         }
 
@@ -1006,25 +1054,32 @@ namespace FullScreenNews
 
         private async Task GetNews()
         {
-            if (!skipNextArticle)
+            try
             {
-                NewsProvider.MoveNext();
-            }
-            else
-            {
-                skipNextArticle = false;
-            }
-            
-            if ((!NewsProvider.HasArticle || this.AppConfigurationLoader.Configuration.UpdateFeedSourcesInterval == 0) && !NewsProvider.IsLoading)
-            {
-                await NewsProvider.SearchAsync();
-            }
+                if (!skipNextArticle)
+                {
+                    NewsProvider.MoveNext();
+                }
+                else
+                {
+                    skipNextArticle = false;
+                }
 
-            NewsArticle article = NewsProvider.Current;
+                if ((!NewsProvider.HasArticle || this.AppConfigurationLoader.Configuration.UpdateFeedSourcesInterval == 0) && !NewsProvider.IsLoading)
+                {
+                    await NewsProvider.SearchAsync();
+                }
 
-            if (article != null)
+                NewsArticle article = NewsProvider.Current;
+
+                if (article != null)
+                {
+                    ShowArticle(article);
+                }
+            }
+            catch (Exception e)
             {
-                ShowArticle(article);
+                Logger.Log("GetNews exception: " + e.Message, Category.Exception, Priority.Medium);
             }
         }
 
@@ -1034,58 +1089,65 @@ namespace FullScreenNews
 
             using (var scope = Container.BeginLifetimeScope())
             {
-                var weatherProvider = scope.Resolve<IWeatherProvider>();
-                List<WeatherResult> wr = await weatherProvider.GetWeather();
-                if (wr != null && wr.Count >= 6)
+                try
                 {
-                    try
+                    var weatherProvider = scope.Resolve<IWeatherProvider>();
+                    List<WeatherResult> wr = await weatherProvider.GetWeather();
+                    if (wr != null && wr.Count >= 6)
                     {
-                        textWeatherToday.Text = string.Format("{0}°", wr[0].Temp);
-                        imageWeatherToday.Width = weatherProvider.TodayWeatherIconWidth;
+                    
+                            textWeatherToday.Text = string.Format("{0}°", wr[0].Temp);
+                            imageWeatherToday.Width = weatherProvider.TodayWeatherIconWidth;
 
-                        Uri uri = null;
-                        if (Uri.TryCreate(wr[0].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
-                        {
-                            imageWeatherToday.Source = new BitmapImage(uri);
-                        }
+                            Uri uri = null;
+                            if (Uri.TryCreate(wr[0].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
+                            {
+                                imageWeatherToday.Source = new BitmapImage(uri);
+                            }
 
-                        imageWeatherDay1.Width = weatherProvider.ForcastWeatherIconWidth;
-                        imageWeatherDay2.Width = weatherProvider.ForcastWeatherIconWidth;
-                        imageWeatherDay3.Width = weatherProvider.ForcastWeatherIconWidth;
-                        imageWeatherDay4.Width = weatherProvider.ForcastWeatherIconWidth;
-                        imageWeatherDay5.Width = weatherProvider.ForcastWeatherIconWidth;
+                            imageWeatherDay1.Width = weatherProvider.ForcastWeatherIconWidth;
+                            imageWeatherDay2.Width = weatherProvider.ForcastWeatherIconWidth;
+                            imageWeatherDay3.Width = weatherProvider.ForcastWeatherIconWidth;
+                            imageWeatherDay4.Width = weatherProvider.ForcastWeatherIconWidth;
+                            imageWeatherDay5.Width = weatherProvider.ForcastWeatherIconWidth;
 
-                        if (Uri.TryCreate(wr[1].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
-                            imageWeatherDay1.Source = new BitmapImage(uri);
-                        if (Uri.TryCreate(wr[2].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
-                            imageWeatherDay2.Source = new BitmapImage(uri);
-                        if (Uri.TryCreate(wr[3].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
-                            imageWeatherDay3.Source = new BitmapImage(uri);
-                        if (Uri.TryCreate(wr[4].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
-                            imageWeatherDay4.Source = new BitmapImage(uri);
-                        if (Uri.TryCreate(wr[5].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
-                            imageWeatherDay5.Source = new BitmapImage(uri);
+                            if (Uri.TryCreate(wr[1].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
+                                imageWeatherDay1.Source = new BitmapImage(uri);
+                            if (Uri.TryCreate(wr[2].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
+                                imageWeatherDay2.Source = new BitmapImage(uri);
+                            if (Uri.TryCreate(wr[3].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
+                                imageWeatherDay3.Source = new BitmapImage(uri);
+                            if (Uri.TryCreate(wr[4].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
+                                imageWeatherDay4.Source = new BitmapImage(uri);
+                            if (Uri.TryCreate(wr[5].IconUrl, UriKind.RelativeOrAbsolute, out uri) && uri.IsAbsoluteUri)
+                                imageWeatherDay5.Source = new BitmapImage(uri);
 
-                        textWeatherDay1.Text = string.Format("{0}°", wr[1].Temp);
-                        textWeatherDay2.Text = string.Format("{0}°", wr[2].Temp);
-                        textWeatherDay3.Text = string.Format("{0}°", wr[3].Temp);
-                        textWeatherDay4.Text = string.Format("{0}°", wr[4].Temp);
-                        textWeatherDay5.Text = string.Format("{0}°", wr[5].Temp);
+                            textWeatherDay1.Text = string.Format("{0}°", wr[1].Temp);
+                            textWeatherDay2.Text = string.Format("{0}°", wr[2].Temp);
+                            textWeatherDay3.Text = string.Format("{0}°", wr[3].Temp);
+                            textWeatherDay4.Text = string.Format("{0}°", wr[4].Temp);
+                            textWeatherDay5.Text = string.Format("{0}°", wr[5].Temp);
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Logger.Log("UpdateWeather UX exception\n" + ex.ToString(), Category.Exception, Priority.High);
+                        Logger.Log("Weather result is not expected. Count is " + wr.Count.ToString(), Category.Warn, Priority.Medium);
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    Logger.Log("Weather result is not expected. Count is " + wr.Count.ToString(), Category.Warn, Priority.Medium);
+                    Logger.Log("UpdateWeather UX exception\n" + ex.ToString(), Category.Exception, Priority.High);
                 }
             }
         }
 
         private void ShowArticle(NewsArticle article)
         {
+            if (article == null)
+            {
+                Logger.Log("ShowArticle has no entries", Category.Warn, Priority.Medium);
+                return;
+            }
+
             if (article.ThumbnailUrl != null)
             {
                 Uri uri = new Uri(article.ThumbnailUrl, UriKind.RelativeOrAbsolute);
@@ -1179,6 +1241,12 @@ namespace FullScreenNews
                         isSubMenu = true;
                         SetAlarm(contentItem);
                         break;
+                    case ContentItem.ContentMode:
+                    case ContentItem.FullMode:
+                    case ContentItem.NoSideWindowMode:
+                        isSubMenu = true;
+                        SetDisplayMode(contentItem);
+                        break;
                     default:
                         break;
                 }
@@ -1194,7 +1262,14 @@ namespace FullScreenNews
                 IList<MenuFlyoutItemBase> items = null;
                 if (isSubMenu)
                 {
-                    items = alarmSubMenu.Items;
+                    if ((int)contentItem >= (int)ContentItem.ContentMode)
+                    {
+                        items = displaySubMenu.Items;
+                    }
+                    else
+                    {
+                        items = alarmSubMenu.Items;
+                    }
                 }
                 else
                 {
@@ -1210,6 +1285,25 @@ namespace FullScreenNews
                 }
 
                 (item as ToggleMenuFlyoutItem).IsChecked = true;
+            }
+        }
+
+        private void SetDisplayMode(ContentItem contentItem)
+        {
+            if (contentItem == ContentItem.ContentMode)
+            {
+                TwitterList.Visibility = Visibility.Collapsed;
+                gridInfo.Visibility = Visibility.Collapsed;
+            }
+            else if (contentItem == ContentItem.NoSideWindowMode)
+            {
+                TwitterList.Visibility = Visibility.Collapsed;
+                gridInfo.Visibility = Visibility.Visible;
+            }
+            else if (contentItem == ContentItem.FullMode)
+            {
+                TwitterList.Visibility = Visibility.Visible;
+                gridInfo.Visibility = Visibility.Visible;
             }
         }
 
