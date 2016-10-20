@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -69,6 +70,12 @@ namespace FullScreenNews.Providers.News
                                 if (att != null)
                                 {
                                     img = node.Attributes.Single(a => a.Name == "src").Value;
+                                    if (img.Contains("feedburner"))
+                                    {
+                                        img = null;
+                                        continue;
+                                    }
+
                                     if (img.StartsWith("/"))
                                     {
                                         img = "http:" + img;
@@ -86,9 +93,12 @@ namespace FullScreenNews.Providers.News
                         description = doc.DocumentNode.InnerText;
 
                         // Remove HTML characters
-                        description = Regex.Replace(description, "&nbsp;", " ").Trim();
+                        //description = Regex.Replace(description, "&nbsp;", " ").Trim();
+                        description = WebUtility.HtmlDecode(description);
+
                         description = Regex.Replace(description, @"\s{2,}", " ");
 
+                        /*
                         if (img == null)
                         {
                             if (items.Image != null && !string.IsNullOrWhiteSpace(items.Image.Url))
@@ -96,6 +106,7 @@ namespace FullScreenNews.Providers.News
                                 img = items.Image.Url;
                             }
                         }
+                        */
 
                         localArticles.Add(new NewsArticle()
                         {

@@ -67,9 +67,11 @@ namespace FullScreenNews
         AlarmBase30 = 230,
         AlarmBase45 = 245,
         AlarmBase60 = 260,
-        ContentMode = 300,
-        NoSideWindowMode = 301,
-        FullMode = 302
+        SimpleMode = 300,
+        TimeAndWeatherMode = 301,
+        NewsAndStocksMode = 302,
+        FullMode = 303,
+        Exit = 1000
     }
 
     /// <summary>
@@ -124,8 +126,6 @@ namespace FullScreenNews
 
         private MenuFlyoutSubItem displaySubMenu;
 
-        private bool AccessOnline = true;
-
         public MainPage()
         {
             this.InitializeComponent();
@@ -144,7 +144,7 @@ namespace FullScreenNews
 
             if (UIViewSettings.GetForCurrentView().UserInteractionMode == UserInteractionMode.Touch)
             {
-                SetDisplayMode(ContentItem.ContentMode);
+                SetDisplayMode(ContentItem.TimeAndWeatherMode);
             }
         }
 
@@ -454,14 +454,21 @@ namespace FullScreenNews
 
             item = new ToggleMenuFlyoutItem();
             item.Text = "Simple mode";
-            item.Tag = ContentItem.ContentMode;
+            item.Tag = ContentItem.SimpleMode;
             (item as ToggleMenuFlyoutItem).IsChecked = false;
             item.Click += option_Click;
             displaySubMenu.Items.Add(item);
 
             item = new ToggleMenuFlyoutItem();
-            item.Text = "No side window mode";
-            item.Tag = ContentItem.NoSideWindowMode;
+            item.Text = "Time and weather mode";
+            item.Tag = ContentItem.TimeAndWeatherMode;
+            (item as ToggleMenuFlyoutItem).IsChecked = false;
+            item.Click += option_Click;
+            displaySubMenu.Items.Add(item);
+
+            item = new ToggleMenuFlyoutItem();
+            item.Text = "News and stocks mode";
+            item.Tag = ContentItem.NewsAndStocksMode;
             (item as ToggleMenuFlyoutItem).IsChecked = false;
             item.Click += option_Click;
             displaySubMenu.Items.Add(item);
@@ -509,6 +516,15 @@ namespace FullScreenNews
             item = new MenuFlyoutItem();
             item.Text = "Settings";
             item.Tag = ContentItem.Configuration;
+            item.Click += option_Click;
+
+            this.menuFlyout.Items.Add(item);
+
+            this.menuFlyout.Items.Add(new MenuFlyoutSeparator());
+
+            item = new MenuFlyoutItem();
+            item.Text = "Exit";
+            item.Tag = ContentItem.Exit;
             item.Click += option_Click;
 
             this.menuFlyout.Items.Add(item);
@@ -1155,10 +1171,12 @@ namespace FullScreenNews
                 //imgThumbnail.Width = article.Width;
                 //imgThumbnail.Height = article.Height;
                 imgThumbnail.Source = imgSource;
+                imgThumbnail.Visibility = Visibility.Visible;
             }
             else
             {
                 imgThumbnail.Source = null;
+                imgThumbnail.Visibility = Visibility.Collapsed;
             }
 
             textTitle.Text = article.Title;
@@ -1241,11 +1259,15 @@ namespace FullScreenNews
                         isSubMenu = true;
                         SetAlarm(contentItem);
                         break;
-                    case ContentItem.ContentMode:
+                    case ContentItem.SimpleMode:
                     case ContentItem.FullMode:
-                    case ContentItem.NoSideWindowMode:
+                    case ContentItem.NewsAndStocksMode:
+                    case ContentItem.TimeAndWeatherMode:
                         isSubMenu = true;
                         SetDisplayMode(contentItem);
+                        break;
+                    case ContentItem.Exit:
+                        Application.Current.Exit();
                         break;
                     default:
                         break;
@@ -1262,7 +1284,7 @@ namespace FullScreenNews
                 IList<MenuFlyoutItemBase> items = null;
                 if (isSubMenu)
                 {
-                    if ((int)contentItem >= (int)ContentItem.ContentMode)
+                    if ((int)contentItem >= (int)ContentItem.SimpleMode)
                     {
                         items = displaySubMenu.Items;
                     }
@@ -1290,20 +1312,29 @@ namespace FullScreenNews
 
         private void SetDisplayMode(ContentItem contentItem)
         {
-            if (contentItem == ContentItem.ContentMode)
+            if (contentItem == ContentItem.SimpleMode)
             {
                 TwitterList.Visibility = Visibility.Collapsed;
                 gridInfo.Visibility = Visibility.Collapsed;
+                gridTimeWeather.Visibility = Visibility.Collapsed;
             }
-            else if (contentItem == ContentItem.NoSideWindowMode)
+            else if (contentItem == ContentItem.TimeAndWeatherMode)
+            {
+                TwitterList.Visibility = Visibility.Collapsed;
+                gridInfo.Visibility = Visibility.Collapsed;
+                gridTimeWeather.Visibility = Visibility.Visible;
+            }
+            else if (contentItem == ContentItem.NewsAndStocksMode)
             {
                 TwitterList.Visibility = Visibility.Collapsed;
                 gridInfo.Visibility = Visibility.Visible;
+                gridTimeWeather.Visibility = Visibility.Visible;
             }
             else if (contentItem == ContentItem.FullMode)
             {
                 TwitterList.Visibility = Visibility.Visible;
                 gridInfo.Visibility = Visibility.Visible;
+                gridTimeWeather.Visibility = Visibility.Visible;
             }
         }
 

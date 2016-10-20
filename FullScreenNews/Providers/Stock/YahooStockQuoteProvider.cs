@@ -15,8 +15,6 @@ namespace FullScreenNews.Providers.Stock
     {
         private static string QuotesUrlFormat = "http://finance.yahoo.com/d/quotes.csv?s={0}&f=snl1t1p2&e=.csv";
 
-        private IAppConfigurationLoader AppConfigurationLoader;
-
         public YahooStockQuoteProvider(ILoggerFacade logger, IAppConfigurationLoader appConfigurationLoader)
             : base(logger, appConfigurationLoader)
         {
