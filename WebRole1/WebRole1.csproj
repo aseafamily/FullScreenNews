@@ -105,6 +105,7 @@
   <ItemGroup>
     <Content Include="LiveFrame\CivilAddress.aspx" />
     <Content Include="packages.config" />
+    <Content Include="LiveFrame\DefaultConfiguration.json" />
     <None Include="Properties\PublishProfiles\BlueHouseMall - Web Deploy.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

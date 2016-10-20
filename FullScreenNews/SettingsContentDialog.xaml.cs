@@ -5,10 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Runtime.Serialization.Json;
+using System.Text;
 using Windows.ApplicationModel;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -65,21 +69,25 @@ namespace FullScreenNews
 
         private void SettingsContentDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
         {
-            
         }
 
         private void SettingsContentDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
         {
-            this.textBoxFeeds.Text = string.Join("\n", this.AppConfigurationLoader.Configuration.FeedSources);
-            this.textBoxVideos.Text = string.Join("\n", this.AppConfigurationLoader.Configuration.VideoChannels);
-            this.textBoxSymbols.Text = string.Join(";", this.AppConfigurationLoader.Configuration.StockSymbols);
-            this.textBoxTwitterList.Text = this.AppConfigurationLoader.Configuration.TwitterListUrl;
+            SetConfig(this.AppConfigurationLoader.Configuration);
+        }
 
-            this.toggleChina.IsOn = this.AppConfigurationLoader.Configuration.ShowChineseCalendar;
-            this.textBoxClock1Name.Text = this.AppConfigurationLoader.Configuration.WorldClock1Name;
-            this.textBoxClock1Timezone.Text = this.AppConfigurationLoader.Configuration.WorldClock1Timezone;
-            this.textBoxClock2Name.Text = this.AppConfigurationLoader.Configuration.WorldClock2Name;
-            this.textBoxClock2Timezone.Text = this.AppConfigurationLoader.Configuration.WorldClock2Timezone;
+        private void SetConfig(AppConfiguration config)
+        {
+            this.textBoxFeeds.Text = string.Join("\n", config.FeedSources);
+            this.textBoxVideos.Text = string.Join("\n", config.VideoChannels);
+            this.textBoxSymbols.Text = string.Join(";", config.StockSymbols);
+            this.textBoxTwitterList.Text = config.TwitterListUrl;
+
+            this.toggleChina.IsOn = config.ShowChineseCalendar;
+            this.textBoxClock1Name.Text = config.WorldClock1Name;
+            this.textBoxClock1Timezone.Text = config.WorldClock1Timezone;
+            this.textBoxClock2Name.Text = config.WorldClock2Name;
+            this.textBoxClock2Timezone.Text = config.WorldClock2Timezone;
         }
 
         private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -210,6 +218,34 @@ namespace FullScreenNews
         private void Flyout_Closed(object sender, object e)
         {
             this.Hide();
+        }
+
+        private void HyperlinkButton_Click(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private async void TextBlock_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            var dialog = new MessageDialog("Are you sure to import configuration online?");
+            dialog.Title = "Import";
+            dialog.Commands.Add(new UICommand { Label = "Ok", Id = 0 });
+            dialog.Commands.Add(new UICommand { Label = "Cancel", Id = 1 });
+            var res = await dialog.ShowAsync();
+
+            if ((int)res.Id == 0)
+            {
+                HttpClient client = new HttpClient();
+                HttpResponseMessage response = await client.GetAsync(new Uri("http://bluehousemall.azurewebsites.net/LiveFrame/DefaultConfiguration.json"));
+                string strJSONString = await response.Content.ReadAsStringAsync();
+
+                using (var stream = new MemoryStream(Encoding.Unicode.GetBytes(strJSONString)))
+                {
+                    DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(AppConfiguration));
+                    var config = (AppConfiguration)ser.ReadObject(stream);
+
+                    SetConfig(config);
+                }
+            }
         }
     }
 }

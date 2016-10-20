@@ -1,0 +1,44 @@
+{
+  "Alarminterval": 2700,
+  "FeedSources": [
+    "https://news.google.com/news/feeds?output=rss",
+    "http://feeds2.feedburner.com/businessinsider",
+    "http://www.ifanr.com/feed",
+    "http://feeds.feedburner.com/TheMoneyGame",
+    "http://slickdeals.net/newsearch.php?mode=popdeals&searcharea=deals&searchin=first&rss=1",
+    "http://feeds.feedburner.com/blogspot/wdMq",
+    "http://feeds.feedburner.com/TechCrunch/",
+    "http://feeds.feedburner.com/MileNerd",
+    "http://feeds.bbci.co.uk/news/rss.xml",
+    "http://www.nytimes.com/services/xml/rss/nyt/HomePage.xml",
+    "http://www.theverge.com/rss/index.xml"
+  ],
+  "ShowChineseCalendar": true,
+  "StockSymbols": [
+    "SPY",
+    "MSFT",
+    "NGD",
+    "TWTR",
+    "TSLA",
+    "SCTY",
+    "GOOG"
+  ],
+  "TwitterListUrl": "https://twitter.com/alexmajin/lists/everyday",
+  "UpdateFeedInterval": 30,
+  "UpdateFeedSourcesInterval": 3600,
+  "UpdatePhotoInterval": 25,
+  "UpdateStockInterval": 120,
+  "UpdateWeatherInterval": 3600,
+  "VideoChannels": [
+    "https://flipboard.com/@thenewsdesk",
+    "https://www.ted.com/talks",
+    "http://www.huffingtonpost.com/section/video",
+    "http://pluto.tv/watch/news-24-7",
+    "https://www.youtube.com/embed/2QtdEq2tsh8?list=PLijOlz1lM3pzJjjR1jcIe5tfBYztEZIbY&autoplay=1",
+    "https://www.youtube.com/embed/q7AiwWwiF_k?list=PLijOlz1lM3pzbT5NZ33h-S8PjQvrtOIDn&autoplay=1"
+  ],
+  "WorldClock1Name": "Beijing",
+  "WorldClock1Timezone": "China Standard Time",
+  "WorldClock2Name": "Greenwich",
+  "WorldClock2Timezone": "Greenwich Standard Time"
+}
