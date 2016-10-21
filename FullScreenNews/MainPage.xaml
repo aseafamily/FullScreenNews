@@ -29,7 +29,7 @@
                 </Grid.RowDefinitions>
                 <Image x:Name="imgLocal" Grid.Row="0" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0"></Image>
                 <TextBlock x:Name="textImg" HorizontalAlignment="Right" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Bottom" Height="40" FontSize="24" Foreground="#FFFDF8F8" Margin="10,0,40,-5"/>
-                <WebView x:Name="webVideo" Source="" Visibility="Collapsed"/>
+                <WebView x:Name="webVideo" Source="" Visibility="Collapsed" NewWindowRequested="TwitterList_NewWindowRequested"/>
                 <MediaElement x:Name="localVideo" Width="400" Height="400" Tapped="localVideo_Tapped" MediaEnded="localVideo_MediaEnded"></MediaElement>
 
                 <Button Background="#FF293133" Opacity="0.9" FontSize="10" FontWeight="Bold" Foreground="#FFFBF8F8" Margin="0,0,0,0" Height="30" Width="30" HorizontalAlignment="Right" VerticalAlignment="Bottom">
@@ -97,7 +97,7 @@
                             </Grid.ColumnDefinitions>
                             <Image x:Name="imgThumbnail" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="120"/>
                             <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Column="1" >
-                                <TextBlock x:Name="textDesc" HorizontalAlignment="Right" Margin="10,0,0,0" TextWrapping="Wrap" Text="" FontSize="18" Foreground="#FFF9F8F8"/>
+                                <TextBlock x:Name="textDesc" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="" FontSize="18" Foreground="#FFF9F8F8"/>
                             </ScrollViewer>
                         </Grid>
                         <!-- Use a dummy element to avoid nasty gap issue -->
