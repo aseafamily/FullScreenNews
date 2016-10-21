@@ -1,1 +1,1 @@
-C:\Projects\FullScreenNews\FullScreenNews\AppPackages\LiveFrame_1.1.13.0\LiveFrame_1.1.13.0_x86_x64_arm.appxbundle
+C:\Projects\FullScreenNews\FullScreenNews\AppPackages\LiveFrame_1.1.16.0\LiveFrame_1.1.16.0_x86_x64_arm.appxbundle

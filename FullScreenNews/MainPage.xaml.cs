@@ -177,7 +177,7 @@ namespace FullScreenNews
             ManipulationMode = ManipulationModes.TranslateRailsX | ManipulationModes.TranslateRailsY;
             ManipulationStarted += (s, e) =>
             {
-                pageTimer.Stop();
+                //pageTimer.Stop();
 
                 x1 = (int)e.Position.X;
             };
@@ -188,17 +188,41 @@ namespace FullScreenNews
                 if (x1 > x2)
                 {
                     // swiped left
-                    this.NewsProvider.MoveNext();
+                    //this.NewsProvider.MoveNext();
+                    if (imgLocal.Visibility == Visibility.Visible)
+                    {
+                        this.photoIndex++;
+                        DisplayPhoto();
+                    }
+                    else if (webVideo.Visibility == Visibility.Visible)
+                    {
+                        if (webVideo.CanGoForward)
+                        {
+                            webVideo.GoForward();
+                        }
+                    }
                 }
                 else
                 {
                     // swiped right
-                    this.NewsProvider.MovePrevious();
+                    //this.NewsProvider.MovePrevious();
+                    if (imgLocal.Visibility == Visibility.Visible)
+                    {
+                        this.photoIndex--;
+                        DisplayPhoto();
+                    }
+                    else if (webVideo.Visibility == Visibility.Visible)
+                    {
+                        if (webVideo.CanGoBack)
+                        {
+                            webVideo.GoBack();
+                        }
+                    }
                 }
 
-                ShowArticle(this.NewsProvider.Current);
+                //ShowArticle(this.NewsProvider.Current);
 
-                pageTimer.Start();
+                //pageTimer.Start();
             };
 
             this.textTitle.DoubleTapped += (s, e) =>

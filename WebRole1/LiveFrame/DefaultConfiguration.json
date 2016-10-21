@@ -30,9 +30,10 @@
   "UpdateStockInterval": 120,
   "UpdateWeatherInterval": 3600,
   "VideoChannels": [
-    "https://flipboard.com/@thenewsdesk",
+    "https://flipboard.com/",
     "https://www.ted.com/talks",
-    "http://www.huffingtonpost.com/section/video",
+    "http://www.usatoday.com/",
+    "https://www.youtube.com/channel/UCYfdidRxbB8Qhf0Nx7ioOYw",
     "http://pluto.tv/watch/news-24-7",
     "https://www.youtube.com/embed/2QtdEq2tsh8?list=PLijOlz1lM3pzJjjR1jcIe5tfBYztEZIbY&autoplay=1",
     "https://www.youtube.com/embed/q7AiwWwiF_k?list=PLijOlz1lM3pzbT5NZ33h-S8PjQvrtOIDn&autoplay=1"
