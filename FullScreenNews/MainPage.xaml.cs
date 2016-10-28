@@ -1534,6 +1534,23 @@ namespace FullScreenNews
             args.Handled = true; // Prevent the browser from being launched.
         }
 
+        private void Grid_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (imgLocal.Visibility == Visibility.Visible)
+            {
+                if (e.Key == Windows.System.VirtualKey.Left)
+                {
+                    this.photoIndex--;
+                    DisplayPhoto();
+                }
+                else if (e.Key == Windows.System.VirtualKey.Right)
+                {
+                    this.photoIndex++;
+                    DisplayPhoto();
+                }
+            }
+        }
+
         private async Task PlayLocalVideo()
         {
             Logger.Log("PlayLocalVideo", Category.Debug, Priority.Low);

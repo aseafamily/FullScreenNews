@@ -8,7 +8,7 @@
     xmlns:data="using:FullScreenNews"
     mc:Ignorable="d">
 
-    <Grid BorderBrush="#FF444242">
+    <Grid BorderBrush="#FF444242" KeyDown="Grid_KeyDown">
         <Grid.Background>
             <ImageBrush x:Name="imgBackground"/>
         </Grid.Background>
