@@ -28,7 +28,10 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <Image x:Name="imgLocal" Grid.Row="0" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0"></Image>
-                <TextBlock x:Name="textImg" HorizontalAlignment="Right" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Bottom" Height="40" FontSize="24" Foreground="#FFFDF8F8" Margin="10,0,40,-5"/>
+                <StackPanel Margin="10,0,40,0" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                    <TextBlock x:Name="textImgIndex" HorizontalAlignment="Right" TextWrapping="Wrap" Text="" FontSize="24" Foreground="#FFFDF8F8" />
+                    <TextBlock x:Name="textImg" HorizontalAlignment="Right" TextWrapping="Wrap" Text="TextBlock" FontSize="24" Foreground="#FFFDF8F8" />
+                </StackPanel>
                 <WebView x:Name="webVideo" Source="" Visibility="Collapsed" NewWindowRequested="TwitterList_NewWindowRequested"/>
                 <MediaElement x:Name="localVideo" Width="400" Height="400" Tapped="localVideo_Tapped" MediaEnded="localVideo_MediaEnded"></MediaElement>
 

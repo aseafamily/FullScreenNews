@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using WeatherNet;
 using WeatherNet.Clients;
 using Windows.Devices.Geolocation;
@@ -126,39 +127,53 @@ namespace LiveFrame
                 }
             };
 
-            this.gridMain.KeyDown += gridMain_KeyDown;
-
+            //this.gridMain.KeyDown += gridMain_KeyDown;
+            //this.imgLocal.KeyDown += gridMain_KeyDown;
+            //this.KeyDown += gridMain_KeyDown;
+            
             this.imgLocal.DoubleTapped += async (s, e) =>
             {
-                this.pictureTimer.Stop();
-
-                var dialog = new MessageDialog("Are you sure to delete this photo?");
-                dialog.Title = "Really?";
-                dialog.Commands.Add(new UICommand { Label = "Ok", Id = 0 });
-                dialog.Commands.Add(new UICommand { Label = "Cancel", Id = 1 });
-                var res = await dialog.ShowAsync();
-
-                if ((int)res.Id == 0)
-                {
-                    StorageFile file = await StorageFile.GetFileFromPathAsync(this.picturesList[this.photoIndex]);
-                    await file.DeleteAsync();
-
-                    this.picturesList.RemoveAt(this.photoIndex);
-
-                    //this.photoIndex;
-                    await DisplayPhoto();
-                }
-
-                this.pictureTimer.Start();
+                await DeletePhoto();
             };
 
             this.gridMain.Holding += gridMain_Holding;
             this.gridMain.RightTapped += gridMain_RightTapped;
+
+            this.textboxHook.Focus(FocusState.Keyboard);
         }
 
-        void gridMain_KeyDown(object sender, KeyRoutedEventArgs e)
+        private async Task DeletePhoto()
         {
-            if (e.Key == VirtualKey.Left)
+            this.pageTimer.Stop();
+            this.pictureTimer.Stop();
+
+            var dialog = new MessageDialog("Are you sure to delete this photo?");
+            dialog.Title = "Really?";
+            dialog.Commands.Add(new UICommand { Label = "Ok", Id = 0 });
+            dialog.Commands.Add(new UICommand { Label = "Cancel", Id = 1 });
+            //var op = dialog.ShowAsync();
+            var res = await dialog.ShowAsync();
+            
+            if ((int)res.Id == 0)
+            {
+                StorageFile file = await StorageFile.GetFileFromPathAsync(this.picturesList[this.photoIndex]);
+                await file.DeleteAsync();
+
+                this.picturesList.RemoveAt(this.photoIndex);
+
+                //op.Cancel();
+
+                //this.photoIndex;
+                await DisplayPhoto();
+            }
+
+            this.pictureTimer.Start();
+            this.pageTimer.Start();
+        }
+
+        async void textHook_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Left || e.Key == VirtualKey.Up)
             {
                 this.pictureTimer.Stop();
                 this.pictureTimer.Start();
@@ -167,13 +182,17 @@ namespace LiveFrame
                 this.photoIndex--;
                 DisplayPhoto();
             }
-            else if (e.Key == VirtualKey.Right)
+            else if (e.Key == VirtualKey.Right || e.Key == VirtualKey.Down)
             {
                 this.photoIndex++;
                 DisplayPhoto();
 
                 this.pictureTimer.Stop();
                 this.pictureTimer.Start();
+            }
+            else if (e.Key == VirtualKey.Enter)
+            {
+                await DeletePhoto();
             }
         }
 
@@ -196,6 +215,8 @@ namespace LiveFrame
 
         private void PageTimer_Tick(object sender, object e)
         {
+            textboxHook.Focus(FocusState.Keyboard);
+
             TimeSpan span = DateTime.Now - startTime;
             textTime.Text = DateTime.Now.ToString("h:mm");
             textTimer.Text = DateTime.Now.ToString("dddd, MMMM d");
@@ -726,6 +747,54 @@ namespace LiveFrame
                     textImgCamera.Text = camera;
                 }
             }
+
+            /*
+            string location = string.Empty;
+            if (props.Longitude != null && props.Latitude != null)
+            {
+                try
+                {
+                    var url = string.Format(
+                        "http://forecast.weather.gov/MapClick.php?lat={0}&lon={1}&unit=0&lg=english&FcstType=dwml",
+                        props.Latitude.Value,
+                        props.Longitude.Value);
+                    System.Net.Http.HttpClient client = new System.Net.Http.HttpClient();
+                    client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Firefox/1.0");
+                    var xml = await client.GetStreamAsync(url);
+
+                    XDocument doc = XDocument.Load(xml);
+                    foreach (var elem in doc.Descendants("area-description"))
+                    {
+                        var str = elem.Value;
+
+                        var arr = str.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        if (arr.Length >= 2)
+                        {
+
+                            if (arr.Length == 2)
+                            {
+                                location = str;
+                            }
+                            else
+                            {
+                                location = arr[0] + ", " + arr[arr.Length - 1];
+                            }
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+
+            textImgLocation.Text = location;
+             */
 
             /*
             Windows.Devices.Geolocation.Geoposition x;

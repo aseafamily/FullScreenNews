@@ -40,6 +40,7 @@ using FullScreenNews.Providers.Stock;
 using System.Text.RegularExpressions;
 using Windows.Graphics.Display;
 using Windows.System.Profile;
+using System.Collections;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -79,6 +80,8 @@ namespace FullScreenNews
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        private const int INITSET = 100;
+
         /// <summary>
         /// Gets the <see cref="ILoggerFacade"/> for the application.
         /// </summary>
@@ -95,6 +98,7 @@ namespace FullScreenNews
 
         private DispatcherTimer pageTimer;
         private DispatcherTimer pictureTimer;
+        private DispatcherTimer backgroundPictureTimer;
 
         private DateTime startTime;
         private DateTime alarmStartTime;
@@ -108,11 +112,11 @@ namespace FullScreenNews
 
         public ObservableCollection<Ticker> tickers;
 
-        private List<StorageFile> photoList = null;
-
+        // Picture related properties
+        private List<StorageFile> picturesList = null;
         private int photoIndex = 0;
-
-        private bool isPhotoLoading = false;
+        private bool isPicturesFirstLoading = false;
+        private bool isPicturesBackgroundLoading = false;
 
         private string bingImageText;
 
@@ -163,13 +167,15 @@ namespace FullScreenNews
             this.NewsProvider = container.Resolve<INewsProvider>();
             this.StockQuoteProvider = container.Resolve<IStockQuoteProvider>();
 
+            //GetCalendar();
+
             tickers = new ObservableCollection<FullScreenNews.Ticker>();
             SetBackgroundFromBing();
 
             LoadResourcesFromConfiguration();
 
             // save time
-            SetImageFromLibrary();
+            SetPicturesFromLibrary();
 
             // UI initialize
             // swipe
@@ -274,10 +280,10 @@ namespace FullScreenNews
 
                 if ((int)res.Id == 0)
                 {
-                    StorageFile file = this.photoList[this.photoIndex];
+                    StorageFile file = this.picturesList[this.photoIndex];
                     await file.DeleteAsync();
 
-                    this.photoList.RemoveAt(this.photoIndex);
+                    this.picturesList.RemoveAt(this.photoIndex);
 
                     ++this.photoIndex;
                     await DisplayPhoto();
@@ -295,7 +301,7 @@ namespace FullScreenNews
             //this.imgLocal.ManipulationMode = ManipulationModes.TranslateRailsX | ManipulationModes.TranslateRailsY;
             this.gridLocalImage.PointerReleased += (s, e) =>
             {
-                if (this.photoList == null || this.photoList.Count == 0)
+                if (this.picturesList == null || this.picturesList.Count == 0)
                 {
                     return;
                 }
@@ -338,6 +344,15 @@ namespace FullScreenNews
                 ShowArticle(this.NewsProvider.Current);
             };
         }
+
+        /*
+        private async void GetCalendar()
+        {
+            var dateToShow = DateTime.Now.AddDays(1);
+            var duration = TimeSpan.FromHours(1);
+            var res = await Windows.ApplicationModel.Appointments.AppointmentManager.ShowTimeFrameAsync(dateToShow, duration);
+        }
+        */
 
         private void LoadResourcesFromConfiguration()
         {
@@ -559,7 +574,7 @@ namespace FullScreenNews
             if (this.imgLocal.Visibility == Visibility.Visible)
             {
                 ++this.photoIndex;
-                SetImageFromLibrary();
+                SetPicturesFromLibrary();
             }
         }
 
@@ -604,64 +619,30 @@ namespace FullScreenNews
             }
         }
 
-        private async void SetImageFromLibrary()
+        private async void SetPicturesFromLibrary()
         {
-            if (this.isPhotoLoading)
+            if (this.isPicturesFirstLoading)
             {
                 return;
             }
 
-            if (photoList == null)
+            if (picturesList == null)
             {
-                this.isPhotoLoading = true;
-                
-                //var myPictures = await Windows.Storage.StorageLibrary.GetLibraryAsync
-                //   (Windows.Storage.KnownLibraryId.Pictures);
+                this.isPicturesFirstLoading = true;
 
-                //IObservableVector<Windows.Storage.StorageFolder> myPictureFolders = myPictures.SaveFolder;
-                // Get the user's Pictures folder.
-                // Enable the corresponding capability in the app manifest file.
-                StorageFolder picturesFolder = KnownFolders.PicturesLibrary;
+                await LoadPicturesFromStorage();
 
-                // Get the files in the current folder, sorted by date.
-                IReadOnlyList<StorageFile> localPhotoList = await picturesFolder.GetFilesAsync(CommonFileQuery.OrderBySearchRank);
+                this.isPicturesFirstLoading = false;
 
-                // Iterate over the results and print the list of files
-                // to the Visual Studio Output window.
-                /*
-                foreach (StorageFile file in sortedItems)
-                {
-                    string name = file.Name;
-                    Debug.WriteLine(file.Name + ", " + file.DateCreated);
-                }
-                */
+                //this.Logger.Log("Loaded photos: " + photoList.Count().ToString(), Category.Debug, Priority.Low);
 
-                // shuffle it
-                photoList = new List<StorageFile>();
-
-                //make a list of the index for list
-                foreach (var file in localPhotoList)
-                {
-                    photoList.Add(file);
-                }
-
-                Random rng = new Random();
-                int n = photoList.Count;
-                while (n > 1)
-                {
-                    n--;
-                    int k = rng.Next(n + 1);
-                    StorageFile value = photoList[k];
-                    photoList[k] = photoList[n];
-                    photoList[n] = value;
-                }
-
-                this.isPhotoLoading = false;
-
-                this.Logger.Log("Loaded photos: " + photoList.Count().ToString(), Category.Debug, Priority.Low);
+                this.backgroundPictureTimer = new DispatcherTimer();
+                this.backgroundPictureTimer.Tick += backgroundPictureTimer_Tick;
+                this.backgroundPictureTimer.Interval = new TimeSpan(0, 0, 3);
+                this.backgroundPictureTimer.Start();
             }
 
-            int count = photoList.Count();
+            int count = picturesList.Count();
 
             if (photoIndex >= count)
             {
@@ -674,30 +655,126 @@ namespace FullScreenNews
             }
         }
 
-        private async Task DisplayPhoto()
+        private async void backgroundPictureTimer_Tick(object sender, object e)
         {
-            if (this.photoList == null || this.photoList.Count == 0)
+            if (this.isPicturesBackgroundLoading)
             {
                 return;
             }
 
-            if (this.photoIndex == this.photoList.Count)
+            this.isPicturesBackgroundLoading = true;
+            await LoadPicturesFromStorage();
+            this.isPicturesBackgroundLoading = false;
+        }
+
+        private async Task LoadPicturesFromStorage()
+        {
+            //var myPictures = await Windows.Storage.StorageLibrary.GetLibraryAsync
+            //   (Windows.Storage.KnownLibraryId.Pictures);
+
+            //IObservableVector<Windows.Storage.StorageFolder> myPictureFolders = myPictures.SaveFolder;
+            // Get the user's Pictures folder.
+            // Enable the corresponding capability in the app manifest file.
+            StorageFolder picturesFolder = KnownFolders.PicturesLibrary;
+
+            // Get the files in the current folder, sorted by date.
+            IReadOnlyList<StorageFile> localPhotoList;
+
+            if (this.picturesList == null)
+            {
+                localPhotoList = await picturesFolder.GetFilesAsync(CommonFileQuery.OrderBySearchRank, 0, INITSET);
+            }
+            else
+            {
+                localPhotoList = await picturesFolder.GetFilesAsync(CommonFileQuery.OrderBySearchRank, (uint)this.picturesList.Count, INITSET * 5);
+            }
+
+            if (this.picturesList != null && localPhotoList.Count == 0)
+            {
+                // Get all now
+                this.backgroundPictureTimer.Stop();
+                ShuffleList(this.picturesList);
+
+                return;
+            }
+
+            // Iterate over the results and print the list of files
+            // to the Visual Studio Output window.
+            /*
+            foreach (StorageFile file in sortedItems)
+            {
+                string name = file.Name;
+                Debug.WriteLine(file.Name + ", " + file.DateCreated);
+            }
+            */
+
+            // shuffle it
+            var localList = new List<StorageFile>();
+
+            //make a list of the index for list
+            foreach (var file in localPhotoList)
+            {
+                //file.Path;
+                localList.Add(file);
+            }
+
+            ShuffleList(localList);
+
+            if (this.picturesList == null)
+            {
+                this.picturesList = localList;
+            }
+            else
+            {
+                this.picturesList.AddRange(localList);
+            }
+
+            if ((this.picturesList.Count != INITSET) && ((this.picturesList.Count - INITSET) % (INITSET * 20) == 0))
+            {
+                ShuffleList(this.picturesList);
+            }
+
+            textImgIndex.Text = string.Format("{0}/{1}", this.photoIndex, this.picturesList.Count);
+        }
+
+        private static void ShuffleList(IList localList)
+        {
+            Random rng = new Random();
+            int n = localList.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                var value = localList[k];
+                localList[k] = localList[n];
+                localList[n] = value;
+            }
+        }
+
+        private async Task DisplayPhoto()
+        {
+            if (this.picturesList == null || this.picturesList.Count == 0)
+            {
+                return;
+            }
+
+            if (this.photoIndex == this.picturesList.Count)
             {
                 this.photoIndex = 0;
             }
 
             if (this.photoIndex < 0)
             {
-                this.photoIndex = this.photoList.Count - 1;
+                this.photoIndex = this.picturesList.Count - 1;
             }
 
-            StorageFile file = photoList[this.photoIndex];
+            StorageFile file = picturesList[this.photoIndex];
             //imgLocal.Source = new BitmapImage(new Uri(file.Path));
             //imgLocal.Source = new BitmapImage(new Uri(@"D:/Pictures/googlelogo_color_272x92dp.png", UriKind.Absolute));
 
             //textImg.Text = file.DateCreated.ToString();
 
-            this.Logger.Log(string.Format("Show photo [{0}/{1}]: {2}", this.photoIndex, this.photoList.Count, file.Path), Category.Debug, Priority.Low);
+            this.Logger.Log(string.Format("Show photo [{0}/{1}]: {2}", this.photoIndex, this.picturesList.Count, file.Path), Category.Debug, Priority.Low);
 
             try
             {
@@ -719,6 +796,8 @@ namespace FullScreenNews
 
                     imgLocal.Source = bitmapImage;
                 }
+
+                textImgIndex.Text = string.Format("{0}/{1}", this.photoIndex, this.picturesList.Count);
 
                 ImageProperties props = await file.Properties.GetImagePropertiesAsync();
                 DateTimeOffset date = props.DateTaken;
@@ -1413,7 +1492,7 @@ namespace FullScreenNews
             this.textImg.Text = string.Empty;
             this.textImg.Visibility = Visibility.Visible;
 
-            SetImageFromLibrary();
+            SetPicturesFromLibrary();
             pictureTimer.Start();
         }
 
