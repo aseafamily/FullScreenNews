@@ -177,6 +177,10 @@ namespace FullScreenNews
             // save time
             SetPicturesFromLibrary();
 
+            // Initial mode
+            SetDisplayMode(ContentItem.TimeAndWeatherMode);
+            PlayPhoto();
+
             // UI initialize
             // swipe
             this.NavigationCacheMode = NavigationCacheMode.Required;
@@ -238,6 +242,7 @@ namespace FullScreenNews
                     //this.Frame.Navigate(typeof(InternalBrowser), NewsProvider.Current.Url);
                     this.imgLocal.Visibility = Visibility.Collapsed;
                     this.textImg.Visibility = Visibility.Collapsed;
+                    this.textImgIndex.Visibility = Visibility.Collapsed;
                     this.pictureTimer.Stop();
 
                     this.localVideo.Visibility = Visibility.Collapsed;
@@ -360,13 +365,11 @@ namespace FullScreenNews
 
             if (this.AppConfigurationLoader.Configuration.ShowChineseCalendar)
             {
-                TimeZoneInfo hwZone = TimeZoneInfo.FindSystemTimeZoneById("China Standard Time");
-                DateTimeOffset targetTime = TimeZoneInfo.ConvertTime(localTime, hwZone);
-                textChinaDate.Text = ChinaDate.GetChinaDate(targetTime.DateTime);
+                SetChinaDate(localTime);
             }
             else
             {
-                textChinaDate.Text = string.Empty;
+                textChinaDate.Visibility = Visibility.Collapsed;
             }
 
             TwitterList.Source = new Uri(string.Format(
@@ -380,7 +383,7 @@ namespace FullScreenNews
             WorldClock2Name.Text = this.AppConfigurationLoader.Configuration.WorldClock2Name;
             WorldClock2.TimeZoneId = this.AppConfigurationLoader.Configuration.WorldClock2Timezone;
 
-            alarmMinutes = this.AppConfigurationLoader.Configuration.Alarminterval / 60;
+            //alarmMinutes = this.AppConfigurationLoader.Configuration.Alarminterval / 60;
 
             // set up popup menu
             SetupMenus();
@@ -399,12 +402,20 @@ namespace FullScreenNews
             pageTimer.Start();
 
             this.imgLocal.Visibility = Visibility.Collapsed;
+            this.textImgIndex.Visibility = Visibility.Collapsed;
             this.gridLocalImage.Background = null;
             this.gridLocalImage.Opacity = 1;
 
             pictureTimer = new DispatcherTimer();
             pictureTimer.Tick += PictureTimer_Tick;
             pictureTimer.Interval = new TimeSpan(0, 0, this.AppConfigurationLoader.Configuration.UpdatePhotoInterval);
+        }
+
+        private void SetChinaDate(DateTimeOffset localTime)
+        {
+            TimeZoneInfo hwZone = TimeZoneInfo.FindSystemTimeZoneById("China Standard Time");
+            DateTimeOffset targetTime = TimeZoneInfo.ConvertTime(localTime, hwZone);
+            textChinaDate.Text = ChinaDate.GetChinaDate(targetTime.DateTime);
         }
 
         private async void GetTitle(string url, MenuFlyoutItem item)
@@ -451,26 +462,66 @@ namespace FullScreenNews
             this.menuFlyout.Items.Clear();
 
             MenuFlyoutItem item = new ToggleMenuFlyoutItem();
+
+            item = new ToggleMenuFlyoutItem();
+            item.Text = "Simple mode";
+            item.Tag = ContentItem.SimpleMode;
+            (item as ToggleMenuFlyoutItem).IsChecked = false;
+            item.Click += option_Click;
+
+            this.menuFlyout.Items.Add(item);
+            
+            item = new ToggleMenuFlyoutItem();
+            item.Text = "Time and weather mode";
+            item.Tag = ContentItem.TimeAndWeatherMode;
+            (item as ToggleMenuFlyoutItem).IsChecked = false;
+            item.Click += option_Click;
+
+            this.menuFlyout.Items.Add(item);
+
+            item = new ToggleMenuFlyoutItem();
+            item.Text = "News and stocks mode";
+            item.Tag = ContentItem.NewsAndStocksMode;
+            (item as ToggleMenuFlyoutItem).IsChecked = false;
+            item.Click += option_Click;
+
+            this.menuFlyout.Items.Add(item);
+
+            item = new ToggleMenuFlyoutItem();
+            item.Text = "Full mode";
+            item.Tag = ContentItem.FullMode;
+            (item as ToggleMenuFlyoutItem).IsChecked = true;
+            item.Click += option_Click;
+
+            this.menuFlyout.Items.Add(item);
+
+            this.menuFlyout.Items.Add(new MenuFlyoutSeparator());
+
+            displaySubMenu = new MenuFlyoutSubItem();
+            displaySubMenu.Text = "Display content";
+
+            this.menuFlyout.Items.Add(displaySubMenu);
+
+            item = new ToggleMenuFlyoutItem();
             item.Text = "None";
             item.Tag = ContentItem.None;
             item.Click += option_Click;
-            (item as ToggleMenuFlyoutItem).IsChecked = true;
 
-            this.menuFlyout.Items.Add(item);
+            displaySubMenu.Items.Add(item);
 
             item = new ToggleMenuFlyoutItem();
             item.Text = "Photo";
             item.Tag = ContentItem.Photo;
             item.Click += option_Click;
 
-            this.menuFlyout.Items.Add(item);
+            displaySubMenu.Items.Add(item);
 
             item = new ToggleMenuFlyoutItem();
             item.Text = "Local video";
             item.Tag = ContentItem.LocalVideo;
             item.Click += option_Click;
 
-            this.menuFlyout.Items.Add(item);
+            displaySubMenu.Items.Add(item);
 
             for (int i = 0; i < this.AppConfigurationLoader.Configuration.VideoChannels.Length; i++)
             {
@@ -479,45 +530,10 @@ namespace FullScreenNews
                 item.Tag = this.AppConfigurationLoader.Configuration.VideoChannels[i];
                 item.Click += option_Click;
 
-                this.menuFlyout.Items.Add(item);
+                displaySubMenu.Items.Add(item);
 
                 GetTitle(this.AppConfigurationLoader.Configuration.VideoChannels[i], item);
             }
-
-            this.menuFlyout.Items.Add(new MenuFlyoutSeparator());
-
-            displaySubMenu = new MenuFlyoutSubItem();
-            displaySubMenu.Text = "Display Mode";
-
-            this.menuFlyout.Items.Add(displaySubMenu);
-
-            item = new ToggleMenuFlyoutItem();
-            item.Text = "Simple mode";
-            item.Tag = ContentItem.SimpleMode;
-            (item as ToggleMenuFlyoutItem).IsChecked = false;
-            item.Click += option_Click;
-            displaySubMenu.Items.Add(item);
-
-            item = new ToggleMenuFlyoutItem();
-            item.Text = "Time and weather mode";
-            item.Tag = ContentItem.TimeAndWeatherMode;
-            (item as ToggleMenuFlyoutItem).IsChecked = false;
-            item.Click += option_Click;
-            displaySubMenu.Items.Add(item);
-
-            item = new ToggleMenuFlyoutItem();
-            item.Text = "News and stocks mode";
-            item.Tag = ContentItem.NewsAndStocksMode;
-            (item as ToggleMenuFlyoutItem).IsChecked = false;
-            item.Click += option_Click;
-            displaySubMenu.Items.Add(item);
-
-            item = new ToggleMenuFlyoutItem();
-            item.Text = "Full mode";
-            item.Tag = ContentItem.FullMode;
-            (item as ToggleMenuFlyoutItem).IsChecked = true;
-            item.Click += option_Click;
-            displaySubMenu.Items.Add(item);
 
             this.menuFlyout.Items.Add(new MenuFlyoutSeparator());
 
@@ -694,7 +710,7 @@ namespace FullScreenNews
                 // Get all now
                 this.backgroundPictureTimer.Stop();
                 ShuffleList(this.picturesList);
-
+                textImgLoading.Visibility = Visibility.Collapsed;
                 return;
             }
 
@@ -714,8 +730,11 @@ namespace FullScreenNews
             //make a list of the index for list
             foreach (var file in localPhotoList)
             {
-                //file.Path;
-                localList.Add(file);
+                ImageProperties props = await file.Properties.GetImagePropertiesAsync();
+                if (props.Height > 0 && props.Width > 0 && props.Width > props.Height)
+                {
+                    localList.Add(file);
+                }
             }
 
             ShuffleList(localList);
@@ -729,7 +748,7 @@ namespace FullScreenNews
                 this.picturesList.AddRange(localList);
             }
 
-            if ((this.picturesList.Count != INITSET) && ((this.picturesList.Count - INITSET) % (INITSET * 20) == 0))
+            if ((this.picturesList.Count != INITSET))
             {
                 ShuffleList(this.picturesList);
             }
@@ -802,9 +821,9 @@ namespace FullScreenNews
                 ImageProperties props = await file.Properties.GetImagePropertiesAsync();
                 DateTimeOffset date = props.DateTaken;
                 string dateString;
-                if (date != null)
+                if (date != null && date.Year > 1900)
                 {
-                    dateString = date.ToString("M/d/yyyy h:mm tt");
+                    dateString = date.ToString("M/d/yyyy");
                 }
                 else
                 {
@@ -812,6 +831,7 @@ namespace FullScreenNews
                 }
                 textImg.Text = dateString;
 
+                /*
                 if (!string.IsNullOrEmpty(props.CameraModel))
                 {
                     var requests = new System.Collections.Generic.List<string>();
@@ -875,6 +895,7 @@ namespace FullScreenNews
                         textImg.Text = dateString;
                     }
                 }
+                */
 
                 if (props.Longitude != null && props.Latitude != null)
                 {
@@ -1142,12 +1163,11 @@ namespace FullScreenNews
 
             int seconds = (int)span.TotalSeconds;
 
-            /*
-            if (first || seconds % 10 == 0)
+            
+            if (first || seconds % 3600 == 0)
             {
-                Windows.UI.Xaml.Window.Current.CoreWindow.PointerCursor = null;
+                SetChinaDate(DateTime.Now);
             }
-            */
 
             if (first || seconds % this.AppConfigurationLoader.Configuration.UpdateWeatherInterval == 0)
             {
@@ -1285,6 +1305,8 @@ namespace FullScreenNews
             textTitle.Text = article.Title;
             textDesc.Text = article.Description;
 
+            textSimpleFeedTitle.Text = article.Title;
+
             string content = string.Format(
                 "Published on {0} by {1}, refreshed on {2} ({3})",
                 article.Published,
@@ -1342,15 +1364,19 @@ namespace FullScreenNews
                 switch (contentItem)
                 {
                     case ContentItem.None:
+                        isSubMenu = true;
                         PlayNone();
                         break;
                     case ContentItem.Photo:
+                        isSubMenu = true;
                         PlayPhoto();
                         break;
                     case ContentItem.LocalVideo:
+                        isSubMenu = true;
                         PlayLocalVideo();
                         break;
                     case ContentItem.OnlineVideoBase:
+                        isSubMenu = true;
                         break;
                     case ContentItem.Configuration:
                         OpenSettingsDialog();
@@ -1366,7 +1392,6 @@ namespace FullScreenNews
                     case ContentItem.FullMode:
                     case ContentItem.NewsAndStocksMode:
                     case ContentItem.TimeAndWeatherMode:
-                        isSubMenu = true;
                         SetDisplayMode(contentItem);
                         break;
                     case ContentItem.Exit:
@@ -1387,7 +1412,7 @@ namespace FullScreenNews
                 IList<MenuFlyoutItemBase> items = null;
                 if (isSubMenu)
                 {
-                    if ((int)contentItem >= (int)ContentItem.SimpleMode)
+                    if ((int)contentItem < (int)ContentItem.Configuration)
                     {
                         items = displaySubMenu.Items;
                     }
@@ -1439,6 +1464,17 @@ namespace FullScreenNews
                 gridInfo.Visibility = Visibility.Visible;
                 gridTimeWeather.Visibility = Visibility.Visible;
             }
+
+            if (contentItem == ContentItem.TimeAndWeatherMode)
+            {
+                textTime.FontSize = 150;
+                textSimpleFeedTitle.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                textTime.FontSize = 72;
+                textSimpleFeedTitle.Visibility = Visibility.Collapsed;
+            }
         }
 
         private async void OpenSettingsDialog()
@@ -1464,6 +1500,7 @@ namespace FullScreenNews
             Logger.Log("PlayNone", Category.Debug, Priority.Low);
 
             this.imgLocal.Visibility = Visibility.Collapsed;
+            this.textImgIndex.Visibility = Visibility.Collapsed;
             this.gridLocalImage.Background = null;
             this.gridLocalImage.Opacity = 1;
             this.textImg.Text = bingImageText;
@@ -1487,8 +1524,9 @@ namespace FullScreenNews
             this.localVideo.Stop();
 
             this.imgLocal.Visibility = Visibility.Visible;
-            this.gridLocalImage.Background = new SolidColorBrush(Color.FromArgb(255, 10, 10, 10));
-            this.gridLocalImage.Opacity = 0.9;
+            this.textImgIndex.Visibility = Visibility.Visible;
+            this.gridLocalImage.Background = new SolidColorBrush(Colors.Black);
+            //this.gridLocalImage.Opacity = 0.9;
             this.textImg.Text = string.Empty;
             this.textImg.Visibility = Visibility.Visible;
 
@@ -1504,6 +1542,7 @@ namespace FullScreenNews
             {
                 this.imgLocal.Visibility = Visibility.Collapsed;
                 this.textImg.Visibility = Visibility.Collapsed;
+                this.textImgIndex.Visibility = Visibility.Collapsed;
                 this.pictureTimer.Stop();
 
                 this.localVideo.Visibility = Visibility.Collapsed;
@@ -1524,6 +1563,7 @@ namespace FullScreenNews
         {
             this.imgLocal.Visibility = Visibility.Collapsed;
             this.textImg.Visibility = Visibility.Collapsed;
+            this.textImgIndex.Visibility = Visibility.Collapsed;
             this.pictureTimer.Stop();
 
             this.localVideo.Visibility = Visibility.Collapsed;
@@ -1551,11 +1591,17 @@ namespace FullScreenNews
             }
         }
 
+        private void textSimpleFeedTitle_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            SetDisplayMode(ContentItem.NewsAndStocksMode);
+        }
+
         private async Task PlayLocalVideo()
         {
             Logger.Log("PlayLocalVideo", Category.Debug, Priority.Low);
 
             this.imgLocal.Visibility = Visibility.Collapsed;
+            this.textImgIndex.Visibility = Visibility.Collapsed;
             this.textImg.Visibility = Visibility.Collapsed;
             this.pictureTimer.Stop();
             this.gridLocalImage.Background = new SolidColorBrush(Color.FromArgb(255, 10, 10, 10));

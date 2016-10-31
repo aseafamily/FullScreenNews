@@ -28,10 +28,31 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <Image x:Name="imgLocal" Grid.Row="0" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0"></Image>
-                <StackPanel Margin="10,0,40,0" VerticalAlignment="Bottom" HorizontalAlignment="Right">
-                    <TextBlock x:Name="textImgIndex" HorizontalAlignment="Right" TextWrapping="Wrap" Text="" FontSize="24" Foreground="#FFFDF8F8" />
-                    <TextBlock x:Name="textImg" HorizontalAlignment="Right" TextWrapping="Wrap" Text="TextBlock" FontSize="24" Foreground="#FFFDF8F8" />
-                </StackPanel>
+                <Grid Margin="320,0,40,0" VerticalAlignment="Bottom">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="textSimpleFeedTitle" HorizontalAlignment="Left" TextWrapping="NoWrap" Text="" FontSize="24" Foreground="#FFFDF8F8" Tapped="textSimpleFeedTitle_Tapped" />
+                        <StackPanel Orientation="Horizontal" Grid.Column="1">
+                            <TextBlock x:Name="textImgIndex" Margin="20,0,0,0" HorizontalAlignment="Right" TextWrapping="Wrap" Text="0/0" FontSize="24" Foreground="#FFFDF8F8" />
+                            <TextBlock x:Name="textImgLoading" Margin="0,0,-30,0" HorizontalAlignment="Right" TextWrapping="Wrap" Text="..." FontSize="24" Foreground="#FFFDF8F8" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="textSimpleStock" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" FontSize="24" Foreground="#FFFDF8F8" />
+                        <TextBlock x:Name="textImg" Grid.Column="1" Margin="20,0,0,0" HorizontalAlignment="Right" TextWrapping="NoWrap" Text="TextBlock" FontSize="24" Foreground="#FFFDF8F8" />
+                    </Grid>
+                </Grid>
                 <WebView x:Name="webVideo" Source="" Visibility="Collapsed" NewWindowRequested="TwitterList_NewWindowRequested"/>
                 <MediaElement x:Name="localVideo" Width="400" Height="400" Tapped="localVideo_Tapped" MediaEnded="localVideo_MediaEnded"></MediaElement>
 
@@ -139,22 +160,45 @@
             <WebView x:Name="TwitterList" HorizontalAlignment="Left" Grid.Row="1" Margin="0,-5,0,0" VerticalAlignment="Top" Width="350" Height="2000" Source="" NewWindowRequested="TwitterList_NewWindowRequested" />
         </Grid>
 
-        <Grid Width="320" Height="200" HorizontalAlignment="Left" VerticalAlignment="Bottom" x:Name="gridTimeWeather">
-            <TextBlock x:Name="textTime" HorizontalAlignment="Left" Margin="13,-9,0,0" TextWrapping="Wrap" Text="12:00" FontSize="72" Width="174" Foreground="#FFF7F6F6" VerticalAlignment="Top"/>
-            <TextBlock x:Name="textTimer" HorizontalAlignment="Left" Margin="20,77,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" FontSize="24" Foreground="#FFF7F6F6" />
-            <TextBlock x:Name="textChinaDate" HorizontalAlignment="Left" Margin="20,113,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" FontSize="15" Foreground="#FFF7F6F6" />
-            <Image x:Name="imageWeatherToday" HorizontalAlignment="Left" Height="70" Margin="196,15,0,0" VerticalAlignment="Top" Width="70" Opacity="0.8"/>
-            <TextBlock x:Name="textWeatherToday" HorizontalAlignment="Left" Margin="259,34,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" FontSize="24" Width="40" Foreground="#FFF7F6F6" Height="32"/>
-            <Image x:Name="imageWeatherDay1" HorizontalAlignment="Left" Height="50" Margin="20,138,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
-            <Image x:Name="imageWeatherDay2" HorizontalAlignment="Left" Height="50" Margin="79,138,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
-            <Image x:Name="imageWeatherDay3" HorizontalAlignment="Left" Height="50" Margin="134,138,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
-            <Image x:Name="imageWeatherDay4" HorizontalAlignment="Left" Height="50" Margin="189,138,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
-            <Image x:Name="imageWeatherDay5" HorizontalAlignment="Left" Height="50" Margin="244,138,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
-            <TextBlock x:Name="textWeatherDay1" Text="" Margin="33, 175, 0, 0" Width="30" HorizontalAlignment="Left" Foreground="#FFEEE7E7"/>
-            <TextBlock x:Name="textWeatherDay2" Text="" Margin="94, 175, 0, 0" Width="30" HorizontalAlignment="Left" Foreground="#FFEEE7E7"/>
-            <TextBlock x:Name="textWeatherDay3" Text="" Margin="149, 175, 0, 0" Width="30" HorizontalAlignment="Left" Foreground="#FFEEE7E7"/>
-            <TextBlock x:Name="textWeatherDay4" Text="" Margin="204, 175, 0, 0" Width="30" HorizontalAlignment="Left" Foreground="#FFEEE7E7"/>
-            <TextBlock x:Name="textWeatherDay5" Text="" Margin="259, 175, 0, 0" Width="30" HorizontalAlignment="Left" Foreground="#FFEEE7E7"/>
+        <Grid HorizontalAlignment="Left" VerticalAlignment="Bottom" x:Name="gridTimeWeather">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="textTime" HorizontalAlignment="Left" Margin="13,-10,0,0" Text="12:00" FontSize="72" Foreground="#FFF7F6F6" VerticalAlignment="Bottom"/>
+                    <Image x:Name="imageWeatherToday" HorizontalAlignment="Left" Height="70" Margin="10,0,0,0" VerticalAlignment="Bottom" Width="70" Opacity="0.8"/>
+                    <TextBlock x:Name="textWeatherToday" HorizontalAlignment="Left" Margin="0,0,0,20"  Text="" VerticalAlignment="Bottom" FontSize="24" Width="40" Foreground="#FFF7F6F6" Height="32"/>
+                </StackPanel>
+                <TextBlock x:Name="textTimer" HorizontalAlignment="Left" Margin="20,-10,0,0" TextWrapping="NoWrap" Text="TextBlock" VerticalAlignment="Top" FontSize="24" Foreground="#FFF7F6F6" />
+                <TextBlock x:Name="textChinaDate" HorizontalAlignment="Left" Margin="20,0,0,0" TextWrapping="NoWrap" Text="TextBlock" VerticalAlignment="Top" FontSize="15" Foreground="#FFF7F6F6" />
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Margin="20,0,0,0">
+                        <Image x:Name="imageWeatherDay1" HorizontalAlignment="Center" Height="50" Margin="0,0,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
+                        <TextBlock x:Name="textWeatherDay1" Text="" Margin="0, 0, 0, 0" HorizontalAlignment="Center" Foreground="#FFEEE7E7"/>
+                    </StackPanel>
+                    <StackPanel Margin="10,0,0,0">
+                        <Image x:Name="imageWeatherDay2" HorizontalAlignment="Center" Height="50" Margin="0,0,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
+                        <TextBlock x:Name="textWeatherDay2" Text="" Margin="0, 0, 0, 0" HorizontalAlignment="Center" Foreground="#FFEEE7E7"/>
+                    </StackPanel>
+                    <StackPanel Margin="10,0,0,0">
+                        <Image x:Name="imageWeatherDay3" HorizontalAlignment="Center" Height="50" Margin="0,0,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
+                        <TextBlock x:Name="textWeatherDay3" Text="" Margin="0, 0, 0, 0" HorizontalAlignment="Center" Foreground="#FFEEE7E7"/>
+                    </StackPanel>
+                    <StackPanel Margin="10,0,0,0">
+                        <Image x:Name="imageWeatherDay4" HorizontalAlignment="Center" Height="50" Margin="0,0,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
+                        <TextBlock x:Name="textWeatherDay4" Text="" Margin="0, 0, 0, 0" HorizontalAlignment="Center" Foreground="#FFEEE7E7"/>
+                    </StackPanel>
+                    <StackPanel Margin="10,0,0,0">
+                        <Image x:Name="imageWeatherDay5" HorizontalAlignment="Center" Height="50" Margin="0,0,0,0" VerticalAlignment="Top" Width="50" Opacity="0.5"/>
+                        <TextBlock x:Name="textWeatherDay5" Text="" Margin="0, 0, 0, 0" HorizontalAlignment="Center" Foreground="#FFEEE7E7"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+            
+            
+            
+            
+            
+            
+            
         </Grid>
     </Grid>
 </Page>
