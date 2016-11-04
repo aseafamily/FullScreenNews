@@ -108,6 +108,8 @@
     <Compile Include="Clock.xaml.cs">
       <DependentUpon>Clock.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ContentItemType.cs" />
+    <Compile Include="DisplayMode.cs" />
     <Compile Include="InternalBrowser.xaml.cs">
       <DependentUpon>InternalBrowser.xaml</DependentUpon>
     </Compile>
@@ -140,6 +142,7 @@
     <Compile Include="Settings\LocalAppConfigurationLoader.cs" />
     <Compile Include="Settings\SimpleAppConfigurationLoader.cs" />
     <Compile Include="Providers\Stock\YahooStockQuoteProvider.cs" />
+    <Compile Include="Ticker.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

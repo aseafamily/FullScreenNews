@@ -11,6 +11,9 @@ namespace FullScreenNews.Settings
     public class AppConfiguration
     {
         [DataMember]
+        public int DisplayMode { get; set; } = 3;
+
+        [DataMember]
         public bool ShowChineseCalendar { get; set; } = true;
 
         [DataMember]

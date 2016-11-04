@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
-  <Identity Name="40023Alexmajin.LiveFrame" Publisher="CN=2B89557C-CF88-48FC-98CE-F84C96AD50EE" Version="1.1.16.0" />
   <mp:PhoneIdentity PhoneProductId="0a5b8903-7b09-42a0-ab00-8bfab4cf21fe" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>Live Frame</DisplayName>
