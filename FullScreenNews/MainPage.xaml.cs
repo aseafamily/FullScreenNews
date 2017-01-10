@@ -98,6 +98,8 @@ namespace FullScreenNews
 
         private MenuFlyoutSubItem displaySubMenu;
 
+        private Uri twitterUri;
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -276,7 +278,6 @@ namespace FullScreenNews
 
                     this.picturesList.RemoveAt(this.photoIndex);
 
-                    ++this.photoIndex;
                     await DisplayPhoto();
                 }
 
@@ -358,9 +359,10 @@ namespace FullScreenNews
                 textChinaDate.Visibility = Visibility.Collapsed;
             }
 
-            TwitterList.Source = new Uri(string.Format(
+            this.twitterUri = new Uri(string.Format(
                     "http://bluehousemall.azurewebsites.net/liveframe/ticker.aspx?l={0}",
                     this.AppConfigurationLoader.Configuration.TwitterListUrl));
+            TwitterList.Source = this.twitterUri;
 
             gridWorldClock.Visibility = Visibility.Visible;
 
@@ -651,13 +653,14 @@ namespace FullScreenNews
             // Get the user's Pictures folder.
             // Enable the corresponding capability in the app manifest file.
             StorageFolder picturesFolder = KnownFolders.PicturesLibrary;
+            //StorageFolder picturesFolder = await StorageFolder.GetFolderFromPathAsync(@"D:\My Pictures");
 
             // Get the files in the current folder, sorted by date.
             IReadOnlyList<StorageFile> localPhotoList;
 
             if (this.picturesList == null)
             {
-                localPhotoList = await picturesFolder.GetFilesAsync(CommonFileQuery.OrderBySearchRank, 0, INITSET);
+                localPhotoList = await picturesFolder.GetFilesAsync(CommonFileQuery.OrderByName, 0, INITSET);
             }
             else
             {
@@ -1403,24 +1406,28 @@ namespace FullScreenNews
             if (contentItem == DisplayMode.SimpleMode)
             {
                 TwitterList.Visibility = Visibility.Collapsed;
+                TwitterList.Source = new Uri("about:blank");
                 gridInfo.Visibility = Visibility.Collapsed;
                 gridTimeWeather.Visibility = Visibility.Collapsed;
             }
             else if (contentItem == DisplayMode.TimeAndWeatherMode)
             {
                 TwitterList.Visibility = Visibility.Collapsed;
+                TwitterList.Source = new Uri("about:blank");
                 gridInfo.Visibility = Visibility.Collapsed;
                 gridTimeWeather.Visibility = Visibility.Visible;
             }
             else if (contentItem == DisplayMode.NewsAndStocksMode)
             {
                 TwitterList.Visibility = Visibility.Collapsed;
+                TwitterList.Source = new Uri("about:blank");
                 gridInfo.Visibility = Visibility.Visible;
                 gridTimeWeather.Visibility = Visibility.Visible;
             }
             else if (contentItem == DisplayMode.FullMode)
             {
                 TwitterList.Visibility = Visibility.Visible;
+                TwitterList.Source = this.twitterUri;
                 gridInfo.Visibility = Visibility.Visible;
                 gridTimeWeather.Visibility = Visibility.Visible;
             }
