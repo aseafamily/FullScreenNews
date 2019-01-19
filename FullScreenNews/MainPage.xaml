@@ -38,7 +38,7 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="textSimpleFeedTitle" HorizontalAlignment="Left" TextWrapping="NoWrap" Text="" FontSize="24" Foreground="#FFFDF8F8" Tapped="textSimpleFeedTitle_Tapped" />
+                        <!--<TextBlock x:Name="textSimpleFeedTitle" HorizontalAlignment="Left" TextWrapping="NoWrap" Text="" FontSize="24" Foreground="#FFFDF8F8" Tapped="textSimpleFeedTitle_Tapped" />-->
                         <StackPanel Orientation="Horizontal" Grid.Column="1">
                             <TextBlock x:Name="textImgIndex" Margin="20,0,0,0" HorizontalAlignment="Right" TextWrapping="Wrap" Text="0/0" FontSize="24" Foreground="#FFFDF8F8" />
                             <TextBlock x:Name="textImgLoading" Margin="0,0,-30,0" HorizontalAlignment="Right" TextWrapping="Wrap" Text="..." FontSize="24" Foreground="#FFFDF8F8" />

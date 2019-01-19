@@ -142,7 +142,7 @@ namespace FullScreenNews
             //GetCalendar();
 
             tickers = new ObservableCollection<FullScreenNews.Ticker>();
-            SetBackgroundFromBing();
+            //SetBackgroundFromBing();
 
             LoadResourcesFromConfiguration();
 
@@ -1275,7 +1275,7 @@ namespace FullScreenNews
             textTitle.Text = article.Title;
             textDesc.Text = article.Description;
 
-            textSimpleFeedTitle.Text = article.Title;
+            // textSimpleFeedTitle.Text = article.Title;
 
             string content = string.Format(
                 "Published on {0} by {1}, refreshed on {2} ({3})",
@@ -1435,12 +1435,12 @@ namespace FullScreenNews
             if (contentItem == DisplayMode.TimeAndWeatherMode)
             {
                 textTime.FontSize = 150;
-                textSimpleFeedTitle.Visibility = Visibility.Visible;
+                //textSimpleFeedTitle.Visibility = Visibility.Collapsed;
             }
             else
             {
                 textTime.FontSize = 72;
-                textSimpleFeedTitle.Visibility = Visibility.Collapsed;
+                //textSimpleFeedTitle.Visibility = Visibility.Collapsed;
             }
 
             this.AppConfigurationLoader.Configuration.DisplayMode = (int)contentItem;

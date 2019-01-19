@@ -1,1 +1,1 @@
-C:\Projects\FullScreenNews\FullScreenNews\AppPackages\LiveFrame_1.1.21.0\LiveFrame_1.1.21.0_x86_x64_arm.appxbundle
+C:\GitHub\FullScreenNews\FullScreenNews\bin\ARM\Release\Upload\LiveFrame_1.1.25.0\LiveFrame_1.1.25.0_x86_x64_arm.appxbundle
