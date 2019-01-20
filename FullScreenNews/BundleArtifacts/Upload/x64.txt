@@ -1,2 +1,2 @@
-MainPackage=C:\GitHub\FullScreenNews\FullScreenNews\bin\x64\Release\Upload\LiveFrame_1.1.25.0_x64.appx
-SymbolPackage=C:\GitHub\FullScreenNews\FullScreenNews\bin\x64\Release\Upload\LiveFrame_1.1.25.0\LiveFrame_1.1.25.0_x64.appxsym
+MainPackage=C:\GitHub\FullScreenNews\FullScreenNews\bin\x64\Release\Upload\LiveFrame_1.1.26.0_x64.appx
+SymbolPackage=C:\GitHub\FullScreenNews\FullScreenNews\bin\x64\Release\Upload\LiveFrame_1.1.26.0\LiveFrame_1.1.26.0_x64.appxsym

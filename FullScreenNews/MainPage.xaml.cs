@@ -1139,18 +1139,22 @@ namespace FullScreenNews
                 SetChinaDate(DateTime.Now);
             }
 
+            /*
             if (first || seconds % this.AppConfigurationLoader.Configuration.UpdateWeatherInterval == 0)
             {
-                UpdateWeather();
+                //UpdateWeather();
             }
 
 
             if (first || seconds % this.AppConfigurationLoader.Configuration.UpdateStockInterval == 0)
             {
-                GetQotes();
+                //GetQotes();
             }
+            */
 
-            if (first || seconds % this.AppConfigurationLoader.Configuration.UpdateFeedInterval == 0)
+            DisplayMode displayMode = (DisplayMode)this.AppConfigurationLoader.Configuration.DisplayMode;
+            bool showNews = displayMode == DisplayMode.FullMode || displayMode == DisplayMode.NewsAndStocksMode;
+            if (showNews && (first || seconds % this.AppConfigurationLoader.Configuration.UpdateFeedInterval == 0))
             {
                 GetNews();
             }
