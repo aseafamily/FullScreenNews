@@ -274,7 +274,14 @@ namespace FullScreenNews
                 if ((int)res.Id == 0)
                 {
                     StorageFile file = this.picturesList[this.photoIndex];
-                    await file.DeleteAsync();
+
+                    try
+                    {
+                        await file.DeleteAsync();
+                    }
+                    catch
+                    {
+                    }
 
                     this.picturesList.RemoveAt(this.photoIndex);
 
@@ -298,9 +305,9 @@ namespace FullScreenNews
                     return;
                 }
 
-                PointerPoint point = e.GetCurrentPoint(this.imgLocal);
+                PointerPoint point = e.GetCurrentPoint(this.gridLocalImage);
 
-                if (point.Position.X < this.imgLocal.RenderSize.Width / 3)
+                if (point.Position.X < this.gridLocalImage.RenderSize.Width / 3)
                 {
                     this.pictureTimer.Stop();
                     this.pictureTimer.Start();
@@ -309,7 +316,7 @@ namespace FullScreenNews
                     this.photoIndex--;
                     DisplayPhoto();
                 }
-                else if (point.Position.X > this.imgLocal.RenderSize.Width * 0.67)
+                else if (point.Position.X > this.gridLocalImage.RenderSize.Width * 0.67)
                 {
                     // Right
                     this.photoIndex++;
@@ -701,7 +708,7 @@ namespace FullScreenNews
             foreach (var file in localPhotoList)
             {
                 ImageProperties props = await file.Properties.GetImagePropertiesAsync();
-                if (props.Height > 0 && props.Width > 0 && props.Width > props.Height && ((props.Width / props.Height) < 3))
+                if (props.Height > 200 && props.Width > 200)
                 {
                     localList.Add(file);
                 }
@@ -777,10 +784,14 @@ namespace FullScreenNews
                     {
                         imgLocal.Width = (int)gridLocalImage.RenderSize.Width;
                         imgLocal.Stretch = Stretch.UniformToFill;
+                        imgLocal.Margin = new Thickness(0, 0, 0, 0);
                     }
                     else
                     {
-                        imgLocal.Stretch = Stretch.Uniform;
+                        double top = gridLocalImage.RenderSize.Height * -0.2;
+                        imgLocal.Stretch = Stretch.UniformToFill;
+                        imgLocal.VerticalAlignment = VerticalAlignment.Top;
+                        imgLocal.Margin = new Thickness(0, top, 0, 0);
                     }
 
                     imgLocal.Source = bitmapImage;
